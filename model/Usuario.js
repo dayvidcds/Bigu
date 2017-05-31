@@ -70,7 +70,12 @@ class Usuario {
     }
 
     removerVeiculo(v) {
-
+        for (i = 0; i < this._veiculos.length; i++) {
+            if (this._veiculos[i].placa == v.placa) {
+                this._veiculos.splice(i, 1);
+                return;
+            }
+        }
     }
 
     addContato(c) {
@@ -79,7 +84,12 @@ class Usuario {
     }
 
     removerContato(c) {
-
+        for (i = 0; i < this._contatos.length; i++) {
+            if (this._contatos[i].cpf == c.cpf) {
+                this._contatos.splice(i, 1);
+                return;
+            }
+        }
     }
 
     addPedidoCarona(pc) {
@@ -87,12 +97,16 @@ class Usuario {
     }
 
     addRotaFavoritas(rf) {
-        this._RotasFavoritas.push(rf);
-    }
-
-    removerRotaFavorita(rf) {
-
-    }
+            this._RotasFavoritas.push(rf);
+        }
+        /*
+        removerRotaFavorita(rf) {
+            for(i=0; i< this._RotasFavoritas.length; i++){
+                if(this._RotasFavoritas[i].placa == rf.){
+                    this._RotasFavoritas.splice(i, 1);
+                }
+            } 
+        }*/
 
 }
 
