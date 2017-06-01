@@ -1,0 +1,5 @@
+{
+    "endereco": "mongodb://localhost:",
+    "porta": 27017,
+    "db": "teste"
+}
