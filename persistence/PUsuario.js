@@ -1,23 +1,22 @@
-var con = require('./PUsuario');
-
-var inserir = function(usuario) {
-    con.conectar(function(connex) {
-        console.log(connex.version);
-    });
-}
-
-var usuario;
-inserir.call(usuario);
-
-/*
-var a = require('./a');
-console.log(a);*/
-//console.log(new UserStore());
+var con = require('../persistence/ConexaoDB');
+const Schema = con.Schema;
 
 class PUsuario {
 
     constructor() {
         if (!PUsuario.instancia) {
+
+            this._UsuarioShema = new Schema({
+                cpf: String,
+                nome = String,
+                pontos = Number,
+                veiculos = [String],
+                contatos = [...];
+                pedidosCarona = [];
+                RotasFavoritas = [];
+
+            });
+
             PUsuario.instancia = this;
         }
         return PUsuario.instancia;
@@ -27,21 +26,43 @@ class PUsuario {
 
     }
 
-    inserir(callback_conexao) {
+    remover(callback) {
+
+    }
+
+    atualizar(callback) {
+
+    }
+
+    pesquisarPorCPF(callback) {
+
+    }
+
+    obterTodos(callback) {
 
     }
 
 
-}
 
-/*
-var a;
-a = new PUsuario();
-a.conectar((conexao) => {
-    console.log(conexao.version);
-});*/
+
+}
 
 const instancia = new PUsuario();
 Object.freeze(instancia);
-//console.log(instancia === new PUsuario());
 module.exports = instancia;
+
+/**
+ * var inserir = function(usuario) {
+    con.conectar(function(connex) {
+        console.log(connex.version);
+    });
+}
+
+var usuario;
+inserir.call(usuario);
+
+var a = require('./a');
+console.log(a);
+//console.log(new UserStore());
+
+ */
