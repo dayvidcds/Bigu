@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-class RepositorioUsuarios {
+class UserRepository {
     constructor(conexao) {
         this.conexao = conexao;
         this.schema = new mongoose.Schema({
@@ -11,7 +11,8 @@ class RepositorioUsuarios {
             contatos: [String],
             pedidosCarona: [String]
         });
-        this.usuarioModel = this.conexao.model('Usuario', this.schema);
+
+        this.usuarioModel = this.conexao.model("Usuarioa", this.schema);
 
     }
 
@@ -30,7 +31,7 @@ class RepositorioUsuarios {
 
     async remover(cpf) {
         var error = "";
-        await this.usuarioModel.findOneAndRemove({ cpf: cpf }, (err, res) => {
+        await this.usuarioModel.remove({ cpf: cpf }, (err, res) => {
             if (err) {
                 error = err;
             }
@@ -41,7 +42,6 @@ class RepositorioUsuarios {
     }
 
     async listarTodos() {
-
         var result = null;
         var error = "";
         await this.usuarioModel.find((err, res) => {
@@ -57,6 +57,23 @@ class RepositorioUsuarios {
         return result;
     }
 
+    async listarCpf(cpf) {
+        var result = null;
+        var error = "";
+        await this.usuarioModel.findOne(({ cpf: cpf} ), (err, res) => {
+            if (err) {
+                error = err;
+                return;
+            }
+            result = res;
+        });
+        if (result == null) {
+            throw new Error(error);
+        }
+        return result;
+    }
+
+
 }
 
-module.exports = RepositorioUsuarios;
+module.exports = UserRepository;
