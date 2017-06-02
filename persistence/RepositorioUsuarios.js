@@ -11,8 +11,7 @@ class RepositorioUsuarios {
             contatos: [String],
             pedidosCarona: [String]
         });
-
-        this.usuarioModel = this.conexao.model("Usuarioa", this.schema);
+        this.usuarioModel = this.conexao.model('Usuario', this.schema);
 
     }
 
@@ -42,6 +41,7 @@ class RepositorioUsuarios {
     }
 
     async listarTodos() {
+
         var result = null;
         var error = "";
         await this.usuarioModel.find((err, res) => {
@@ -56,7 +56,6 @@ class RepositorioUsuarios {
         }
         return result;
     }
-
 
 }
 

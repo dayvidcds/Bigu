@@ -1,14 +1,13 @@
 var mongoose = require('mongoose');
 var db_config = require('../config/db.json');
 mongoose.Promise = global.Promise;
-var mongoConn = {};
+var mongoConn; //{}
 
-(function() {
-    console.log(db_config);
+(() => {
     var url;
     url = 'mongodb://' + db_config.endereco + ':' + db_config.porta + '/' + db_config.db;
 
-    mongoConn = mongoose.connect(url, function(err, res) {
+    mongoConn = mongoose.connect(url, (err, res) => {
         if (err) {
             console.log('ERRO');
         } else {

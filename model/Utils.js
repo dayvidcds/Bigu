@@ -6,6 +6,4 @@ module.exports = {
     objToJson: function(obj) {
         return JSON.stringify(obj);
     }
-
-
 }

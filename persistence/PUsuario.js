@@ -11,9 +11,9 @@ class PUsuario {
                 nome = String,
                 pontos = Number,
                 veiculos = [String],
-                contatos = [...];
-                pedidosCarona = [];
-                RotasFavoritas = [];
+                contatos = [id],
+                pedidosCarona = [],
+                RotasFavoritas = ...
 
             });
 
