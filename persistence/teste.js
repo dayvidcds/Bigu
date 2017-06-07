@@ -1,26 +1,37 @@
-var con = require('./ConexaoDB')
-var RepositorioUsuarios = require('./RepositorioUsuarios');
+var con = require('./ConnectionDB')
+var UserRepository = require('./UserRepository');
 
 (async() => {
     try {
-        var rep = new RepositorioUsuarios(con);
 
-        await rep.inserir({ cpf: "1234", nome: "Thiago" });
-        await rep.inserir({ cpf: "4321", nome: "Sostenes" });
-
-        console.log('listando...' + await rep.listarTodos());
-
-        //console.log(JSON.stringify(rep.listarTodos()));
-
-        //await rep.remover("4321");
-
-        //console.log(JSON.stringify(rep.listarTodos()));
-
-        console.log("Fim.");
+        var rep = new UserRepository(con);
+        /*
+                await rep.insert({
+                    cpf: '1111',
+                    nome: 'Thiago',
+                    vehicles: ['593481ba69b895bfdb1c940c', '593481ba69b895bfdb1c940d']
+                });
+                await rep.insert({
+                    cpf: '2222',
+                    nome: 'Sostenes',
+                    vehicles: ['593481ba69b895bfdb1c940e', '593481ba69b895bfdb1c940f']
+                });
+                await rep.insert({
+                    cpf: '3333',
+                    nome: 'Dayvid',
+                    vehicles: ['593481ba69b895bfdb1c940e', '593481ba69b895bfdb1c940f']
+                });
+        */
+        //console.log('listando...' + await rep.listarTodos());
+        await rep.addVehicle('1111', '593481ba69b895bfdb1c940e')
+        console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
+        await rep.removeVehicle('1111', '593481ba69b895bfdb1c940e')
+        console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
+        console.log('Fim.');
     } catch (err) {
-        console.log("Erro: " + err);
+        console.log('Erro: ' + err);
     }
 
-    //Desconectar do bando -- Apenas para fim de testes
+    //Desconectar do banco -- Apenas para fim de testes
     con.disconnect();
 })();
