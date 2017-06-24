@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')
-//var ride = require('./carona.js')
+var RideRepository = require('./RideRepository.js')
+var UserRepository = require('./UserRepository.js') 
 
 class RouteRepository {
     constructor(connection) {
@@ -9,19 +10,18 @@ class RouteRepository {
             ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
             origin: { latitude: Number, longitude: Number },
             destination: { latitude: Number, longitude: Number },
-            checkpointOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-            checkpoints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+            checkpointOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            checkpoints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         })
 
         this.routeModel = this.connection.model('Route', this.schema)
-        this.userModel = this.connection.model('User', this.schema)
-        this.rideModel = this.connection.model('Ride', this.schema)
+        this.userModel = new UserRepository(connection).userModel
+        this.rideModel = new RideRepository(connection).rideModel
 
     }
 
     async setCheckpointOwner(id) {
         var error = ''
-        var route = new this.routeModel(route)
         await this.routeModel.update({ $set: { '_id': id } }, (err, res) => {
             if (err) {
                 error = err
@@ -34,7 +34,6 @@ class RouteRepository {
 
     async setCheckpoint(id) {
         var error = ''
-        var route = new this.routeModel(route)
         await this.routeModel.update({ '_id': id }, (err, res) => {
             if (err) {
                 error = err
@@ -47,8 +46,8 @@ class RouteRepository {
 
     async insert(route) {
         var error = ''
-        var route = new this.routeModel(route)
-        await route.save((err, res) => {
+        var routeRep = new this.routeModel(route)
+        await routeRep.save((err, res) => {
             if (err) {
                 error = err
             }
@@ -126,7 +125,7 @@ class RouteRepository {
 
     async remove(id) {
         var error = ''
-        await this.routeModel.remove({ '_id': id }, (err, res) => {
+        await this.routeModel.findOneAndRemove({ '_id': id }, (err, res) => {
             if (err) {
                 error = err
             }
