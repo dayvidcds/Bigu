@@ -14,8 +14,14 @@ class CheckPointRepository {
         var error = ''
         await this.CheckPointModel.insert(checkPoint,
             (err, res) => {
-                error = err
-
+                if (err) {
+                    error = err
+                    return
+                }
             })
+
+        if (error !== '') {
+            throw new Error(error)
+        }
     }
 }
