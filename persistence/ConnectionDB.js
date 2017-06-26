@@ -12,12 +12,14 @@ mongoose.Promise = global.Promise;
         if (err) {
             console.log('MONGO CONNECTIONS(ERROR)')
             error = err
+            return
         }
+        console.log('MONGO CONNECTIONS(SUCESS)')
     })
     if (error !== '') {
         throw new Error(error)
     }
-    console.log('MONGO CONNECTIONS(SUCESS)')
+
 })()
 
 module.exports = mongoConn

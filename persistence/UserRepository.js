@@ -15,7 +15,8 @@ class UserRepository {
             vehicles: [mongoose.Schema.Types.ObjectId],
             contacts: [mongoose.Schema.Types.ObjectId],
             requestsRide: [mongoose.Schema.Types.ObjectId],
-            favoriteRoutes: [mongoose.Schema.Types.ObjectId]
+            favoriteRoutes: [mongoose.Schema.Types.ObjectId],
+            givenRide: mongoose.Schema.Types.ObjectId
         })
 
         this.userModel = this.connection.model('User', this.schema)
@@ -95,6 +96,35 @@ class UserRepository {
                 return
             }
         })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async findGivenRide(cpf, callback) {
+        var error = ''
+        await this.userModel.aggregate([{
+                    $match: {
+                        cpf: cpf
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "rides",
+                        localField: "givenRide",
+                        foreignField: "_id",
+                        as: "given_ride_full"
+                    }
+                }
+            ],
+            function(err, res) {
+                if (err) {
+                    error = err
+                    return
+                }
+                callback(res)
+            }
+        )
         if (error !== '') {
             throw new Error(error)
         }
