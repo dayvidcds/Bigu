@@ -1,10 +1,13 @@
-class NegociosUsuario {
+class UserBusiness {
     constructor(rep) {
-        this.repositorio = rep;
+        this.repository = rep;
     }
 
     inserir(usuario) {
         //validar primeiro...
+
+
+
         this.repositorio.inserir(usuario);
     }
 

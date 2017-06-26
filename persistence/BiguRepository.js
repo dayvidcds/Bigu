@@ -1,4 +1,7 @@
 var mongoose = require('mongoose')
+var RideRepository = require('./RideRepository')
+var UserRepository = require('./UserRepository')
+var RequestRideRepository = require('./RequestRideRepository')
 
 class BiguRepository {
     constructor(connection) {
@@ -7,21 +10,23 @@ class BiguRepository {
         this.Schema = new mongoose.Schema({
             checkin: Boolean,
             checkout: Boolean,
-            reservation: { type: mongoose.Schema.Types.ObjectId, ref: 'RequestRide' },
-            ride: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride' },
-            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+            reservation: mongoose.Schema.Types.ObjectId,
+            ride: mongoose.Schema.Types.ObjectId,
+            user: mongoose.Schema.Types.ObjectId
         })
-        this.BiguModel = this.connection.model('Bigu', this.Schema)
+        this.biguModel = this.connection.model('Bigu', this.Schema)
 
         //CÓDIGO PARA TESTE(ABAIXO)
-        this.RideModel = this.connection.model('Ride', { nome: String })
-        this.UserModel = this.connection.model('User', { nome: String })
+        /*this.rideModel = new RideRepository(connection).rideModel
+        this.userModel = new UserRepository(connection).userModel
+        this.requestRideModel = new RequestRideRepository(connection).RequestRideModel
+          */ //this.connection.model('Ride', new RideRepository(connection).schema)
+        //this.UserModel = this.connection.model('User', { nome: String })
     }
 
     async insert(bigu) {
         var error = ''
-        var biguRep = new this.BiguModel(bigu)
-
+        var biguRep = new this.biguModel(bigu)
         await biguRep.save(
             (err, res) => {
                 if (err) {
@@ -34,9 +39,25 @@ class BiguRepository {
         }
     }
 
-    async remove(biguId) {
+    async findById(id) {
         var error = ''
-        await this.BiguModel.findOneAndRemove({ _id: biguId },
+        var result = null
+        await this.userModel.findOne({ _id: id }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+            result = res
+        })
+        if (result == null) {
+            throw (new Error(error))
+        }
+        return result
+    }
+
+    async remove(id) {
+        var error = ''
+        await this.biguModel.findOneAndRemove({ _id: id },
             () => {
                 if (err) {
                     error = error
@@ -51,7 +72,7 @@ class BiguRepository {
     //Utilizar o cpf como parametro | Mudar a chave primaria de usuario para cpf
     async removeAllFromUser(userId) {
         var error = ''
-        await this.BiguModel.remove({ user: userId },
+        await this.biguModel.remove({ user: userId },
             (err, res) => {
                 if (err) {
                     error = err
@@ -65,7 +86,7 @@ class BiguRepository {
 
     async updateCheckin(biguId, state) {
         var error = ''
-        await this.BiguModel.findOneAndUpdate({ _id: biguId }, { $set: { checkin: state } },
+        await this.biguModel.findOneAndUpdate({ _id: biguId }, { $set: { checkin: state } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -79,7 +100,7 @@ class BiguRepository {
 
     async updateCheckout(biguId, state) {
         var error = ''
-        await this.BiguModel.findOneAndUpdate({ _id: biguId }, { $set: { checkout: state } },
+        await this.biguModel.findOneAndUpdate({ _id: biguId }, { $set: { checkout: state } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -91,3 +112,4 @@ class BiguRepository {
         }
     }
 }
+module.exports = BiguRepository

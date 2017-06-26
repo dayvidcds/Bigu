@@ -7,21 +7,21 @@ class CheckPointRepository {
             timestamp: Date,
             position: { latitude: Number, longitude: Number }
         })
-        this.CheckPointModel = this.connection.model('CheckPoint', this.Schema)
+        this.checkPointModel = this.connection.model('CheckPoint', this.Schema)
     }
 
     async insert(checkPoint) {
         var error = ''
-        await this.CheckPointModel.insert(checkPoint,
-            (err, res) => {
-                if (err) {
-                    error = err
-                    return
-                }
-            })
-
+        var checkRep = new this.checkPointModel(checkPoint)
+        await this.checkPointModel.save((err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+        })
         if (error !== '') {
             throw new Error(error)
         }
     }
 }
+module.exports = CheckPointRepository

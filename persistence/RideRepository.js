@@ -1,32 +1,81 @@
 var mongoose = require('mongoose')
+var RouteRepository = require('./RouteRepository.js')
+var UserRepository = require('./UserRepository.js')
+var VeicleRepository = require('./VehicleRepository.js')
 
 class RideRepository {
     constructor(connection) {
         this.connection = connection
         this.schema = new mongoose.Schema({
-            user: { type: mongoose.Schema.Types.ObjectId, ref:  'User'},
-            hitchhiker: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-            start: { start: String }, // start time
-            route: { type: mongoose.Schema.Types.ObjectId, ref: 'Route' },
-            numberPlaces: { number: Number },
-            veicle: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            user: mongoose.Schema.Types.ObjectId,
+            hitchhikers: [mongoose.Schema.Types.ObjectId],
+            start: Date, // start time
+            route: mongoose.Schema.Types.ObjectId,
+            availableSpace: Number,
+            vehicle: mongoose.Schema.Types.ObjectId
         })
-
-        this.routeModel = this.connection.model('Route', this.schema)
-        this.userModel = this.connection.model('User', this.schema)
         this.rideModel = this.connection.model('Ride', this.schema)
 
+        /*this.routeModel = new RouteRepository(connection).routeModel
+        this.userModel = new UserRepository(connection).userModel
+        this.vehicleModel = new VeicleRepository(connection).vehicleModel
+        */
     }
 
     async insert(ride) {
         var error = ''
-        var ride = new this.routeModel(ride)
-        await route.save((err, res) => {
+        var rideRep = new this.rideModel(ride)
+        await rideRep.save((err, res) => {
             if (err) {
                 error = err
             }
         })
         if (error != '') {
+            throw new Error(error)
+        }
+    }
+
+    async findById(rideId) {
+        var error = ''
+        var result = null
+        await this.rideModel.findOne({ _id: rideId }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+            result = res
+        })
+        if (result == null) {
+            throw (new Error(error))
+        }
+        return result
+    }
+
+    async getVehicle(rideId, callback) {
+        var error = ''
+        await this.rideModel.aggregate([{
+                    $match: {
+                        _id: rideId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "vehicles",
+                        localField: "vehicle",
+                        foreignField: "_id",
+                        as: "vehicle_full"
+                    }
+                }
+            ],
+            function(err, res) {
+                if (err) {
+                    error = err
+                    return
+                }
+                callback(res)
+            }
+        )
+        if (error !== '') {
             throw new Error(error)
         }
     }
@@ -41,79 +90,147 @@ class RideRepository {
             }
             result = res
         })
-        if (!result) {
+        if (result == null) {
             throw new Error(error)
         }
     }
 
-    async findHitchhiker(cpf) {
+
+    async getHitchhikers(rideId, callback) {
         var error = ''
-        var result = null
-        await this.rideModel.find({ 'cpf': cpf }, (err, res) => {
-
-        }).populate('hitchhikers').exec((err, res) => {
-            if (err) {
-                error = err
-                return
+        await this.rideModel.aggregate([{
+                    $match: {
+                        _id: rideId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "hitchhikers",
+                        foreignField: "_id",
+                        as: "hitchhikers_full"
+                    }
+                }
+            ],
+            function(err, res) {
+                if (err) {
+                    error = err
+                    return
+                }
+                callback(res)
             }
-            result = res
-        })
-        if (!result) {
+        )
+        if (error !== '') {
             throw new Error(error)
         }
-        return result
     }
-        
-     async remove(id) {
+
+    async checkHitchhiker(rideId, cpf, callback) {
+        var error = ''
+        await this.rideModel.aggregate([{
+                    $match: {
+                        _id: rideId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "hitchhikers",
+                        foreignField: "_id",
+                        as: "hitchhikers_full"
+                    }
+                }, {
+                    $match: {
+                        "hitchhikers_full.cpf": cpf
+                    }
+                }
+            ],
+            function(err, res) {
+                if (err) {
+                    error = err
+                    return
+                }
+                callback(res)
+            }
+        )
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async remove(id) {
         var error = ''
         await this.rideModel.remove({ '_id': id }, (err, res) => {
             if (err) {
                 error = err
-            }
-            else {
+            } else {
                 console.log(id + ' removed')
             }
         })
-        if (error != '') {
+        if (error !== '') {
             throw new Error(error)
         }
     }
 
-    async findeRideFriend(cpf) {
-        var result = null
+    async findContactsRides(cpf, callback) {
         var error = ''
-        await this.rideModel.findOne({ 'cpf': cpf }, (err, res) => {
-            if (err) {
-                error = err
-                return
+        this.rideModel.aggregate([{
+                    $match: {
+                        cpf: '1'
+                    }
+                }, {
+                    $lookup: {
+                        from: "users",
+                        localField: "contacts",
+                        foreignField: "_id",
+                        as: "users_full"
+                    }
+                }, {
+                    $unwind: "$users_full"
+                }, {
+                    $lookup: {
+                        from: "rides",
+                        localField: "users_full.givenRides",
+                        foreignField: "_id",
+                        as: "users_full.rides_full"
+                    }
+                }, {
+                    $unwind: "$users_full.rides_full"
+                },
+                {
+                    $group: {
+                        _id: "$users_full._id",
+                        ride: {
+                            $push: "$users_full.rides_full"
+                        }
+                    }
+                }
+            ],
+            function(err, res) {
+                if (err) {
+                    error = err
+                    return
+                }
+                callback(res)
             }
-        }).populate('friendRide', (err, res) => {
-            if (err) {
-                error = err
-                return
-            }
-            result = res
-        })
-        if (result == null) {
+        )
+        if (error !== '') {
             throw new Error(error)
         }
-        return result
     }
 
-    async setVagas(number) {
+    async setVagas(rideId, number) {
         var err = ''
-        await this.routeModel.findOndeAndUpdate({ 'number': number }, (err, res) => {
+        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { 'availableSpace': number } }, (err, res) => {
             if (err) {
                 error = err
                 return
             }
-            else {
-                console.log('updated to ' + number + ' vacancies!')
-            }
         })
-        if (error != '') {
+        if (error !== '') {
             throw new Error(error)
         }
     }
-
 }
+
+module.exports = RideRepository

@@ -23,10 +23,10 @@ var UserRepository = require('./UserRepository');
                 });
         */
         //console.log('listando...' + await rep.listarTodos());
-        await rep.addVehicle('1111', '593481ba69b895bfdb1c940e')
-        console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
-        await rep.removeVehicle('1111', '593481ba69b895bfdb1c940e')
-        console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
+        //await rep.addVehicle('1111', '593481ba69b895bfdb1c940e')
+        console.log('listando: ' + JSON.stringify(await rep.findAll()))
+            //await rep.removeVehicle('1111', '593481ba69b895bfdb1c940e')
+            //console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
         console.log('Fim.');
     } catch (err) {
         console.log('Erro: ' + err);
