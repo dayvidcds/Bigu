@@ -23,48 +23,36 @@ class RouteRepository {
      * 
      * EXPLICAR ISSO AQUI
      */
-    async checkpointOwner(id) {
+    async checkpointOwner(routeId, checkpointId) {
         var error = ''
-        await this.routeModel.insert({ _id: id }, (err, res) => {
+        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $push: { checkpointOwner: checkpointId }},
+        (err, res) => {
             if (err) {
                 error = err
+                return
             }
         })
-        if (error != '') {
+        
+        if (error !== '') {
             throw new Error(error)
         }
     }
 
     /*ISSO AQUI TAMBÉM */
-    async addCheckpoint(idFriend, idOwner) {
+    async addCheckpoint(routeId, checkpointId) {
         var error = ''
-        await this.routeModel.aggregate([{
-                    $match: {
-                        _id: idOwner
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "vehicles",
-                        localField: "vehicle",
-                        foreignField: "_id",
-                        as: "vehicle_full"
-                    }
-                }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
+        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $push: { checkpoints: checkpointId }},
+        (err, res) => {
+            if (err) {
+                error = err
+                return
             }
-        )
+        })
+        
         if (error !== '') {
             throw new Error(error)
         }
     }
-}
 
 async insert(route) {
     var error = ''
