@@ -3,6 +3,7 @@ var UserRepository = require('./UserRepository');
 var VehicleRepository = require('./VehicleRepository');
 var RideRepository = require('./RideRepository');
 var RouteRepository = require('./RouteRepository');
+var UserBusiness = require('../business/UserBusiness');
 
 function pretty(obj) {
     console.log(JSON.stringify(obj, null, 4));
@@ -54,15 +55,22 @@ function pretty(obj) {
                 })
         */
 
-        uRep.findVehicles('3', function callback(res) {
-            pretty(res)
+        /*        uRep.findVehicles('3', function callback(res) {
+                    pretty(res)
+                })
+        */
+
+
+        var uBus = new UserBusiness(uRep)
+            /* await uBus.insert({
+            name: 'zeca',
+            cpf: '11'
         })
 
+        pretty(await uRep.findByCpf('11'))
+*/
 
-
-
-
-
+        pretty(await uBus.findAllContacts('1'))
 
         //pretty(await uRep.findByCpf('4'))
 
@@ -84,6 +92,6 @@ function pretty(obj) {
         //con.disconnect()
 
     } catch (err) {
-        console.log(err)
+        console.log('Log >>' + err)
     }
 })()

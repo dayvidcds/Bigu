@@ -1,13 +1,13 @@
 var mongoose = require('mongoose')
 var RideRepository = require('./RideRepository.js')
-var UserRepository = require('./UserRepository.js')
+var UserRepository = require('./UserRepository.js');
 
 class RouteRepository {
     constructor(connection) {
         this.connection = connection
         this.schema = new mongoose.Schema({
             //user: user, depois que a persistencia carona estiver pronta bolar algo pra pegar os dados de lá :v
-            ride: mongoose.Schema.Types.ObjectId,
+            //ride: mongoose.Schema.Types.ObjectId,
             origin: { latitude: Number, longitude: Number },
             destination: { latitude: Number, longitude: Number },
             checkpointOwner: mongoose.Schema.Types.ObjectId,
@@ -23,9 +23,9 @@ class RouteRepository {
      * 
      * EXPLICAR ISSO AQUI
      */
-    async setCheckpointOwner(id) {
+    async checkpointOwner(id) {
         var error = ''
-        await this.routeModel.update({ $set: { '_id': id } }, (err, res) => {
+        await this.routeModel.insert({ _id: id }, (err, res) => {
             if (err) {
                 error = err
             }
@@ -36,93 +36,21 @@ class RouteRepository {
     }
 
     /*ISSO AQUI TAMBÉM */
-    async setCheckpoint(id) {
+    async addCheckpoint(idFriend, idOwner) {
         var error = ''
-        await this.routeModel.update({ '_id': id }, (err, res) => {
-            if (err) {
-                error = err
-            }
-        })
-        if (error != '') {
-            throw new Error(error)
-        }
-    }
-
-    async insert(route) {
-        var error = ''
-        var routeRep = new this.routeModel(route)
-        await routeRep.save((err, res) => {
-            if (err) {
-                error = err
-            }
-        })
-        if (error != '') {
-            throw new Error(error)
-        }
-    }
-
-    async findAll() {
-        var error = ''
-        var result = null
-        await this.routeModel.find((err, res) => {
-            if (err) {
-                error = err
-                return
-            }
-            result = res
-        })
-        if (result == null) {
-            throw new Error(error)
-        }
-        return result
-    }
-
-    async findFriendsRoutes(cpf, callback) {
-        var error = ''
-        await this.userModel.aggregate([
-                db.users.aggregate({
+        await this.routeModel.aggregate([{
                     $match: {
-                        cpf: cpf
+                        _id: idOwner
                     }
-                }, {
+                },
+                {
                     $lookup: {
-                        from: "users",
-                        localField: "contacts",
+                        from: "vehicles",
+                        localField: "vehicle",
                         foreignField: "_id",
-                        as: "users_full"
+                        as: "vehicle_full"
                     }
-                }, {
-                    $unwind: "$users_full"
-                }, {
-                    $lookup: {
-                        from: "rides",
-                        localField: "users_full.given_rides",
-                        foreignField: "_id",
-                        as: "users_full.rides_full"
-                    }
-                }, {
-                    $unwind: "$users_full.rides_full"
-                }, {
-                    $lookup: {
-                        from: "routes",
-                        localField: "users_full.rides_full.route",
-                        foreignField: "_id",
-                        as: "users_full.rides_full.route_full"
-                    }
-                }, {
-                    $match: {
-                        "users_full.rides_full.route_full.end": null
-                    }
-                }, {
-                    $unwind: "$users_full.rides_full.route_full"
-                }, {
-                    $group: {
-                        _id: "$users_full.cpf",
-                        route: {
-                            $push: "$users_full.rides_full.route_full"
-                        }
-                    }
-                })
+                }
             ],
             function(err, res) {
                 if (err) {
@@ -136,20 +64,110 @@ class RouteRepository {
             throw new Error(error)
         }
     }
+}
 
-    async remove(id) {
-        var error = ''
-        await this.routeModel.findOneAndRemove({ '_id': id }, (err, res) => {
+async insert(route) {
+    var error = ''
+    var routeRep = new this.routeModel(route)
+    await routeRep.save((err, res) => {
+        if (err) {
+            error = err
+        }
+    })
+    if (error != '') {
+        throw new Error(error)
+    }
+}
+
+async findAll() {
+    var error = ''
+    var result = null
+    await this.routeModel.find((err, res) => {
+        if (err) {
+            error = err
+            return
+        }
+        result = res
+    })
+    if (result == null) {
+        throw new Error(error)
+    }
+    return result
+}
+
+async findFriendsRoutes(cpf, callback) {
+    var error = ''
+    await this.userModel.aggregate([
+            db.users.aggregate({
+                $match: {
+                    cpf: cpf
+                }
+            }, {
+                $lookup: {
+                    from: "users",
+                    localField: "contacts",
+                    foreignField: "_id",
+                    as: "users_full"
+                }
+            }, {
+                $unwind: "$users_full"
+            }, {
+                $lookup: {
+                    from: "rides",
+                    localField: "users_full.given_rides",
+                    foreignField: "_id",
+                    as: "users_full.rides_full"
+                }
+            }, {
+                $unwind: "$users_full.rides_full"
+            }, {
+                $lookup: {
+                    from: "routes",
+                    localField: "users_full.rides_full.route",
+                    foreignField: "_id",
+                    as: "users_full.rides_full.route_full"
+                }
+            }, {
+                $match: {
+                    "users_full.rides_full.route_full.end": null
+                }
+            }, {
+                $unwind: "$users_full.rides_full.route_full"
+            }, {
+                $group: {
+                    _id: "$users_full.cpf",
+                    route: {
+                        $push: "$users_full.rides_full.route_full"
+                    }
+                }
+            })
+        ],
+        function(err, res) {
             if (err) {
                 error = err
-            } else {
-                console.log(routeId + ' removed')
+                return
             }
-        })
-        if (error != '') {
-            throw new Error(error)
+            callback(res)
         }
+    )
+    if (error !== '') {
+        throw new Error(error)
     }
+}
+
+async remove(id) {
+    var error = ''
+    await this.routeModel.findOneAndRemove({ _id: id }, (err, res) => {
+        if (err) {
+            error = err
+        } else {
+            console.log(routeId + ' removed')
+        }
+    })
+    if (error != '') {
+        throw new Error(error)
+    }
+}
 
 }
 

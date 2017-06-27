@@ -67,7 +67,7 @@ class UserRepository {
             result = res
         })
         if (result == null) {
-            throw (new Error(error))
+            throw (new Error('log>> Usuario nao registrado >>' + error))
         }
         return result
     }
@@ -182,6 +182,7 @@ class UserRepository {
                 callback(res)
             }
         )
+        console.log('voltei do callback')
         if (error !== '') {
             throw new Error(error)
         }
