@@ -13,13 +13,14 @@ function pretty(obj) {
     try {
         var veRep = new VehicleRepository(con);
         var uRep = new UserRepository(con);
-
-        /*for (i = 0; i < 5; i++) {
-            uRep.insert({
-                cpf: i,
-                name: 'user ' + i
-            })
-        }*/
+        var riRep = new RideRepository(con)
+        var roRep = new RouteRepository(con)
+            /*for (i = 0; i < 5; i++) {
+                uRep.insert({
+                    cpf: i,
+                    name: 'user ' + i
+                })
+            }*/
 
         /* (NEGOCIOS) ADICIONA UM VEICULO
         await veRep.insert({ plate: '1' })
@@ -61,8 +62,8 @@ function pretty(obj) {
         */
 
 
-        var uBus = new UserBusiness(uRep)
-            /* await uBus.insert({
+        //var uBus = new UserBusiness(uRep)
+        /* await uBus.insert({
             name: 'zeca',
             cpf: '11'
         })
@@ -70,7 +71,57 @@ function pretty(obj) {
         pretty(await uRep.findByCpf('11'))
 */
 
-        pretty(await uBus.findAllContacts('1'))
+        //pretty(await uBus.findAllContacts('1'))
+        /*
+                await roRep.insert({
+                    origin: {
+                        latitude: 1111.1,
+                        longitude: 2222.2
+                    },
+                    destination: {
+                        latitude: 3333.3,
+                        longitude: 3333.3
+                    },
+                    ride: '594ee5aea72b823200179d3c'
+                })
+
+                await riRep.setRoute('594ee5aea72b823200179d3c', )
+
+                rRep.checkpointOwner(await)
+        */
+
+
+        /*        var uBus = new UserBusiness(uRep)
+                await uBus.insert({
+                    cpf: '12',
+                    name: 'upe'
+                })*/
+
+        /*
+                var uBus = new UserBusiness(uRep)
+                await uBus.insert({
+                    cpf: '12',
+                    name: 'upe'
+                })
+        */
+        /*var uBus = new UserBusiness(uRep)
+        var resposta = 'antiga';
+        await uBus.findAllContacts('12', (res) => {
+            resposta = res
+            pretty(resposta)
+        })*/
+
+        /*await uRep.insert({
+            cpf: '15',
+            name: 'dido'
+        })*/
+
+        var uBus = new UserBusiness(uRep)
+        await uBus.insert({
+            cpf: '15',
+            name: 'teste'
+        })
+        pretty(await uBus.findAllContacts('15'))
 
         //pretty(await uRep.findByCpf('4'))
 

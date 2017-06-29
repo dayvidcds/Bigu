@@ -16,7 +16,8 @@ class UserRepository {
             contacts: [mongoose.Schema.Types.ObjectId],
             requestsRide: [mongoose.Schema.Types.ObjectId],
             favoriteRoutes: [mongoose.Schema.Types.ObjectId],
-            givenRide: mongoose.Schema.Types.ObjectId
+            givenRide: mongoose.Schema.Types.ObjectId,
+            rideMode: Boolean
         })
 
         this.userModel = this.connection.model('User', this.schema)
@@ -29,6 +30,21 @@ class UserRepository {
         //new VechicleRepository(connection)
         //new RideRepository(connection)
         //new RouteRepository(connection)
+    }
+
+    async rideMode(cpf, mode) {
+        //return Promise.all()
+        var error = ''
+        var userRep = new this.userModel(user)
+        await userRep.findOneAndUpdate({ cpf: cpf }, { $set: { rideMode: mode } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                }
+            })
+        if (error != '') {
+            throw new Error(error)
+        }
     }
 
     async insert(user) {
@@ -101,33 +117,31 @@ class UserRepository {
         }
     }
 
-    async findGivenRide(cpf, callback) {
-        var error = ''
-        await this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+    async findGivenRide(cpf) {
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                        $match: {
+                            cpf: cpf
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "rides",
+                            localField: "givenRide",
+                            foreignField: "_id",
+                            as: "given_ride_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "rides",
-                        localField: "givenRide",
-                        foreignField: "_id",
-                        as: "given_ride_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
+                        return
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async addContact(cpf, contactId) { //Cpf de quem recebe/ _id do contato
@@ -158,34 +172,37 @@ class UserRepository {
         }
     }
 
-    async findContacts(cpf, callback) {
-        var error = ''
-        await this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+    async findContacts(cpf) {
+        return new Promise((resolve, reject) => {
+            var error = ''
+            this.userModel.aggregate([{
+                            $match: {
+                                cpf: cpf
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "contacts",
+                                foreignField: "_id",
+                                as: "users_full"
+                            }
+                        }
+                    ],
+                    (err, res) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        resolve(res)
                     }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "contacts",
-                        foreignField: "_id",
-                        as: "users_full"
-                    }
-                }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        console.log('voltei do callback')
-        if (error !== '') {
-            throw new Error(error)
-        }
+                )
+                /*
+                            if (error !== '') {
+                                throw new Error(error)
+                            }*/
+        })
+
+        //return result
     }
 
     async addVehicle(cpf, vehicleId) { //Cpf de quem recebe/ _id do veiculo
@@ -216,33 +233,30 @@ class UserRepository {
         }
     }
 
-    async findVehicles(cpf, callback) {
-        var error = ''
-        await this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+    async findVehicles(cpf) {
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                        $match: {
+                            cpf: cpf
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "vehicles",
+                            localField: "vehicles",
+                            foreignField: "_id",
+                            as: "vehicles_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "vehicles",
-                        localField: "vehicles",
-                        foreignField: "_id",
-                        as: "vehicles_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async addRequestRide(cpf, requestRideId) { //Cpf de quem recebe/ _id do pedido de carona
@@ -273,33 +287,30 @@ class UserRepository {
         }
     }
 
-    async findRequestsRide(cpf, callback) {
-        var error = ''
-        await this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+    async findRequestsRide(cpf) {
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                        $match: {
+                            cpf: cpf
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "requestsRide",
+                            localField: "requestsRide",
+                            foreignField: "_id",
+                            as: "requests_ride_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "requestsRide",
-                        localField: "requestsRide",
-                        foreignField: "_id",
-                        as: "requests_ride_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async addFavoriteRoute(cpf, favoriteRouteId) { //Cpf de quem recebe/ _id da rota favorita
@@ -331,34 +342,29 @@ class UserRepository {
     }
 
     async findFavoriteRoutes(cpf) {
-        var error = ''
-        await this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                        $match: {
+                            cpf: cpf
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "favoriteRoutes",
+                            localField: "favoriteRoutes",
+                            foreignField: "_id",
+                            as: "favorite_routes_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "favoriteRoutes",
-                        localField: "favoriteRoutes",
-                        foreignField: "_id",
-                        as: "favorite_routes_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 }
-
-
 module.exports = UserRepository

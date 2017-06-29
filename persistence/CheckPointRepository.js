@@ -23,5 +23,40 @@ class CheckPointRepository {
             throw new Error(error)
         }
     }
+
+    async getCheckPoint(chkId) {
+        var error = ''
+        var result = null
+        await this.checkPointModel.findOne({ _id: chkId },
+            (err, res) => {
+                if (err) {
+                    error = err
+                }
+                result = res
+            })
+
+        if (result == null) {
+            throw new Error(error)
+        }
+        return result
+    }
+
+    async getAllCheckPoints() {
+        var error = ''
+        var result = null
+        await this.checkPointModel.find(
+            (err, res) => {
+                if (err) {
+                    error = err
+                }
+                result = res
+            })
+
+        if (result == null) {
+            throw new Error(error)
+        }
+        return result
+    }
+
 }
 module.exports = CheckPointRepository

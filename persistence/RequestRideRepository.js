@@ -73,33 +73,31 @@ class RequestRideRepository {
         }
     }
 
-    async findById(id, callback) {
+    async findById(id) {
         var error = ''
-        await this.requestRideModel.aggregate([{
-                    $match: {
-                        _id: id
+        return new Promise((resolve, reject) => {
+            this.requestRideModel.aggregate([{
+                        $match: {
+                            _id: id
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "rides",
+                            localField: "ride",
+                            foreignField: "_id",
+                            as: "ride_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "rides",
-                        localField: "ride",
-                        foreignField: "_id",
-                        as: "ride_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async findAll() {

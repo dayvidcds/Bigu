@@ -51,33 +51,31 @@ class RideRepository {
         return result
     }
 
-    async getVehicle(rideId, callback) {
+    async getVehicle(rideId) {
         var error = ''
-        await this.rideModel.aggregate([{
-                    $match: {
-                        _id: rideId
+        return new Promise((resolve, reject) => {
+            this.rideModel.aggregate([{
+                        $match: {
+                            _id: rideId
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "vehicles",
+                            localField: "vehicle",
+                            foreignField: "_id",
+                            as: "vehicle_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "vehicles",
-                        localField: "vehicle",
-                        foreignField: "_id",
-                        as: "vehicle_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async findAll() {
@@ -96,66 +94,62 @@ class RideRepository {
     }
 
 
-    async getHitchhikers(rideId, callback) {
+    async getHitchhikers(rideId) {
         var error = ''
-        await this.rideModel.aggregate([{
-                    $match: {
-                        _id: rideId
+        return new Promise((resolve, reject) => {
+            this.rideModel.aggregate([{
+                        $match: {
+                            _id: rideId
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "hitchhikers",
+                            foreignField: "_id",
+                            as: "hitchhikers_full"
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "hitchhikers",
-                        foreignField: "_id",
-                        as: "hitchhikers_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
-    async checkHitchhiker(rideId, cpf, callback) {
+    async checkHitchhiker(rideId, cpf) {
         var error = ''
-        await this.rideModel.aggregate([{
-                    $match: {
-                        _id: rideId
+        return new Promise((resolve, reject) => {
+            this.rideModel.aggregate([{
+                        $match: {
+                            _id: rideId
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "hitchhikers",
+                            foreignField: "_id",
+                            as: "hitchhikers_full"
+                        }
+                    }, {
+                        $match: {
+                            "hitchhikers_full.cpf": cpf
+                        }
                     }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "hitchhikers",
-                        foreignField: "_id",
-                        as: "hitchhikers_full"
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
                     }
-                }, {
-                    $match: {
-                        "hitchhikers_full.cpf": cpf
-                    }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async remove(id) {
@@ -172,51 +166,49 @@ class RideRepository {
         }
     }
 
-    async findContactsRides(cpf, callback) {
+    async findContactsRides(cpf) {
         var error = ''
-        this.rideModel.aggregate([{
-                    $match: {
-                        cpf: '1'
-                    }
-                }, {
-                    $lookup: {
-                        from: "users",
-                        localField: "contacts",
-                        foreignField: "_id",
-                        as: "users_full"
-                    }
-                }, {
-                    $unwind: "$users_full"
-                }, {
-                    $lookup: {
-                        from: "rides",
-                        localField: "users_full.givenRides",
-                        foreignField: "_id",
-                        as: "users_full.rides_full"
-                    }
-                }, {
-                    $unwind: "$users_full.rides_full"
-                },
-                {
-                    $group: {
-                        _id: "$users_full._id",
-                        ride: {
-                            $push: "$users_full.rides_full"
+        return new Promise((resolve, reject) => {
+            this.rideModel.aggregate([{
+                        $match: {
+                            cpf: '1'
+                        }
+                    }, {
+                        $lookup: {
+                            from: "users",
+                            localField: "contacts",
+                            foreignField: "_id",
+                            as: "users_full"
+                        }
+                    }, {
+                        $unwind: "$users_full"
+                    }, {
+                        $lookup: {
+                            from: "rides",
+                            localField: "users_full.givenRides",
+                            foreignField: "_id",
+                            as: "users_full.rides_full"
+                        }
+                    }, {
+                        $unwind: "$users_full.rides_full"
+                    },
+                    {
+                        $group: {
+                            _id: "$users_full._id",
+                            ride: {
+                                $push: "$users_full.rides_full"
+                            }
                         }
                     }
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
+                    }
+                    resolve(res)
                 }
-            ],
-            function(err, res) {
-                if (err) {
-                    error = err
-                    return
-                }
-                callback(res)
-            }
-        )
-        if (error !== '') {
-            throw new Error(error)
-        }
+            )
+        })
     }
 
     async setVagas(rideId, number) {
@@ -231,6 +223,20 @@ class RideRepository {
             throw new Error(error)
         }
     }
+
+    async setRoute(rideId, routeId) {
+        var err = ''
+        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { route: routeId } }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+        })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
 }
 
 module.exports = RideRepository

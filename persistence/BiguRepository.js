@@ -24,6 +24,23 @@ class BiguRepository {
         //this.UserModel = this.connection.model('User', { nome: String })
     }
 
+    async findAllBigu() {
+        var error = ''
+        var result = null
+        await this.biguModel.find(
+            (err, res) => {
+                if (err) {
+                    error = err
+                }
+                result = res
+            })
+
+        if (result == null) {
+            throw new Error(error)
+        }
+        return result
+    }
+
     async insert(bigu) {
         var error = ''
         var biguRep = new this.biguModel(bigu)

@@ -37,18 +37,41 @@ class UserBusiness {
 
     async findAllContacts(cpf) {
         var result = null
+        var usreExist = false
         try {
             this.checkCpf(cpf)
-            await this.repository.findContacts(cpf,
-                (res) => {
-                    result = res
-                    console.log('mudei res' + res)
-                })
-            console.log('passei o callback')
+            await this.repository.findByCpf(cpf)
+            result = await this.repository.findContacts(cpf)
         } catch (error) {
             throw new Error(error)
         }
         return result
+
+        /*
+        
+                            var usreExist = false
+                            try {
+                                this.checkCpf(cpf)
+                                this.repository.findByCpf(cpf)
+                                this.repository.findContacts(cpf,
+                                    (res) => {
+                                        callback(res)
+                                    })
+                            } catch (error) {
+                                throw new Error(error)
+                 */
+    }
+
+    async activateHitchhikerMode(cpf) {
+        try {
+            this.checkCpf(cpf)
+            await this.repository.findContacts(cpf,
+                (res) => {
+                    callback(res)
+                })
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 
     //VERIFICAR FUNCIONALIDADE DISSO
