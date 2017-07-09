@@ -9,7 +9,8 @@ class RequestRideRepository {
             origin: { latitude: Number, longitude: Number },
             destination: { latitude: Number, longitude: Number },
             startTime: Date,
-            endTime: Date
+            endTime: Date,
+            date: Date
         })
         this.requestRideModel = this.connection.model('RequestRide', this.Schema)
             //this.rideModel = new RideRepository(connection).rideModel
@@ -20,18 +21,19 @@ class RequestRideRepository {
     }
 
     async insert(requestRide) {
-        var error = ''
-        var requestRideRep = new this.requestRideModel(requestRide)
-
-        await requestRideRep.save((err, res) => {
-            if (err) {
-                error = err
-                return
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var requestRideRep = new this.requestRideModel(requestRide)
+            requestRideRep.save((err, res) => {
+                if (err) {
+                    error = err
+                }
+                resolve(res)
+            })
+            if (error !== '') {
+                throw new Error(error)
             }
         })
-        if (error !== '') {
-            throw new Error(error)
-        }
     }
 
     async setStartTimeById(id, startTime) {

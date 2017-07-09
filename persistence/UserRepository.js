@@ -3,8 +3,6 @@ var VechicleRepository = require('./VehicleRepository')
 var RideRepository = require('./RideRepository')
 var RouteRepository = require('./RouteRepository');
 
-//var userModelT = mongoose.model('User', this.schema)
-
 class UserRepository {
     constructor(connection) {
         this.connection = connection
@@ -12,7 +10,7 @@ class UserRepository {
             cpf: String,
             name: String,
             points: Number,
-            vehicles: [mongoose.Schema.Types.ObjectId],
+            vehicles: [String],
             contacts: [mongoose.Schema.Types.ObjectId],
             requestsRide: [mongoose.Schema.Types.ObjectId],
             favoriteRoutes: [mongoose.Schema.Types.ObjectId],
@@ -22,7 +20,7 @@ class UserRepository {
 
         this.userModel = this.connection.model('User', this.schema)
 
-        //CÓDIGOS PARA TESTE, ABAIXO
+        //CÓDIGOS PARA TESTE, ABAIX
         //this.vechicleModel = this.connection.model('Vehicle', { plate: String })
         //this.rideModel = this.connection.model('Ride', {})
         //this.routeModel = this.connection.model('Route', {})
@@ -32,7 +30,7 @@ class UserRepository {
         //new RouteRepository(connection)
     }
 
-    async rideMode(cpf, mode) {
+    async setRideMode(cpf, mode) {
         //return Promise.all()
         var error = ''
         var userRep = new this.userModel(user)
@@ -48,16 +46,21 @@ class UserRepository {
     }
 
     async insert(user) {
+        //return new Promise((resolve, reject) => {
         var error = ''
-        var userRep = new this.userModel(user)
+        var userRep = new this.userModel(user);
+        //await
         await userRep.save((err, res) => {
             if (err) {
                 error = err
             }
+            //resolve(res)
         })
         if (error !== '') {
             throw new Error(error)
         }
+        //})
+        //})
     }
 
     async removeByCpf(cpf) {
@@ -205,9 +208,9 @@ class UserRepository {
         //return result
     }
 
-    async addVehicle(cpf, vehicleId) { //Cpf de quem recebe/ _id do veiculo
+    async addVehicle(cpf, plate) { //Cpf de quem recebe/ _id do veiculo
         var error = ''
-        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { vehicles: vehicleId } },
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { vehicles: plate } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -219,9 +222,9 @@ class UserRepository {
         }
     }
 
-    async removeVehicle(cpf, vehicleId) { //Cpf de quem recebe/ _id do veiculo
+    async removeVehicle(cpf, plate) { //Cpf de quem recebe/ _id do veiculo
         var error = ''
-        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { vehicles: vehicleId } },
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { vehicles: plate } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -234,7 +237,22 @@ class UserRepository {
     }
 
     async findVehicles(cpf) {
-        return new Promise((resolve, reject) => {
+        var result = null
+        var error = ''
+        await this.userModel.findOne({ cpf: cpf }, { vehicles: 1, _id: 0 }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+            result = res
+        })
+        if (result == null) {
+            throw new Error(error)
+        }
+        return result
+
+
+        /*return new Promise((resolve, reject) => {
             this.userModel.aggregate([{
                         $match: {
                             cpf: cpf
@@ -256,7 +274,7 @@ class UserRepository {
                     resolve(res)
                 }
             )
-        })
+        })*/
     }
 
     async addRequestRide(cpf, requestRideId) { //Cpf de quem recebe/ _id do pedido de carona

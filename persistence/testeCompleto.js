@@ -4,6 +4,8 @@ var VehicleRepository = require('./VehicleRepository');
 var RideRepository = require('./RideRepository');
 var RouteRepository = require('./RouteRepository');
 var UserBusiness = require('../business/UserBusiness');
+var RequestRideRepository = require('./RequestRideRepository')
+var RequestRideBusiness = require('../business/RequestRideBusiness')
 
 function pretty(obj) {
     console.log(JSON.stringify(obj, null, 4));
@@ -11,16 +13,55 @@ function pretty(obj) {
 
 (async() => {
     try {
-        var veRep = new VehicleRepository(con);
+        //var veRep = new VehicleRepository(con);
         var uRep = new UserRepository(con);
-        var riRep = new RideRepository(con)
-        var roRep = new RouteRepository(con)
-            /*for (i = 0; i < 5; i++) {
-                uRep.insert({
-                    cpf: i,
-                    name: 'user ' + i
-                })
-            }*/
+        //var riRep = new RideRepository(con)
+        //var roRep = new RouteRepository(con)
+
+
+        var reqRideRep = new RequestRideRepository(con)
+        var reqRideBus = new RequestRideBusiness(reqRideRep)
+
+        var user = await uRep.findByCpf('4')
+        pretty(user)
+
+        var or = { latitude: 1, longitude: 1 }
+        var de = { latitude: 2, longitude: 2 }
+
+        //console.log(user.contacts.indexOf('594ed6670cc61a92b8c9efe54'))
+
+        var ret = await reqRideBus.requestRide(user, '594ee5aea72b823200179d3c', or, de)
+        pretty(ret)
+        uRep.addRequestRide('4', ret)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*
+                pretty(await uRep.insert({
+                        cpf: '26',
+                        name: 'testeaa'
+                    }))
+          */ //pretty(await uRep.findContacts('18'))
+
+
+
+        /*for (i = 0; i < 5; i++) {
+            uRep.insert({
+                cpf: i,
+                name: 'user ' + i
+            })
+        }*/
 
         /* (NEGOCIOS) ADICIONA UM VEICULO
         await veRep.insert({ plate: '1' })
@@ -116,13 +157,13 @@ function pretty(obj) {
             name: 'dido'
         })*/
 
-        var uBus = new UserBusiness(uRep)
+        /*var uBus = new UserBusiness(uRep)
         await uBus.insert({
             cpf: '15',
             name: 'teste'
         })
         pretty(await uBus.findAllContacts('15'))
-
+*/
         //pretty(await uRep.findByCpf('4'))
 
         //pretty(await uRep.findVehicles('4'))

@@ -15,6 +15,21 @@ class UserBusiness {
         if (user == null) throw new Error('Null user')
     }
 
+    async acceptContact(userCpf, contactCpf) {
+        var contact = null
+        var error = ''
+        try {
+            await this.repository.findByCpf(userCpf)
+            contact = await this.repository.findByCpf(contactCpf)
+            await this.repository.addContact(contact.id)
+        } catch (err) {
+            error = err
+        }
+        if (error != '') {
+            throw new Error(error)
+        }
+    }
+
     async insert(user) {
         var userExist = false
         try {
@@ -32,6 +47,15 @@ class UserBusiness {
             await this.repository.insert(user);
         } else {
             throw new Error('User already registered')
+        }
+    }
+
+    async addVehicle(cpf, plate) {
+        try {
+            await this.repository.findByCpf(cpf)
+            await this.repository.addVehicle(cpf, plate)
+        } catch (error) {
+            throw new Error(error)
         }
     }
 
@@ -62,13 +86,11 @@ class UserBusiness {
                  */
     }
 
-    async activateHitchhikerMode(cpf) {
+    async activateRideMode(cpf) {
         try {
             this.checkCpf(cpf)
-            await this.repository.findContacts(cpf,
-                (res) => {
-                    callback(res)
-                })
+            await this.repository.findContacts(cpf)
+            await this.repository.setRideMode(cpf)
         } catch (error) {
             throw new Error(error)
         }
