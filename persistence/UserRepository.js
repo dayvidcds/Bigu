@@ -11,10 +11,10 @@ class UserRepository {
             name: String,
             points: Number,
             vehicles: [String],
-            contacts: [mongoose.Schema.Types.ObjectId],
+            contacts: [String],
             requestsRide: [mongoose.Schema.Types.ObjectId],
             favoriteRoutes: [mongoose.Schema.Types.ObjectId],
-            givenRide: mongoose.Schema.Types.ObjectId,
+            givenRides: [mongoose.Schema.Types.ObjectId],
             rideMode: Boolean
         })
 
@@ -120,7 +120,7 @@ class UserRepository {
         }
     }
 
-    async findGivenRide(cpf) {
+    async findGivenRides(cpf) {
         return new Promise((resolve, reject) => {
             this.userModel.aggregate([{
                         $match: {
@@ -130,9 +130,9 @@ class UserRepository {
                     {
                         $lookup: {
                             from: "rides",
-                            localField: "givenRide",
+                            localField: "givenRides",
                             foreignField: "_id",
-                            as: "given_ride_full"
+                            as: "given_rides_full"
                         }
                     }
                 ],
@@ -147,9 +147,9 @@ class UserRepository {
         })
     }
 
-    async addContact(cpf, contactId) { //Cpf de quem recebe/ _id do contato
+    async addGivenRide(cpf, rideId) { //Cpf de quem recebe/ cpf do contato
         var error = ''
-        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { contacts: contactId } },
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { givenRides: rideId } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -161,9 +161,37 @@ class UserRepository {
         }
     }
 
-    async removeContact(cpf, contactId) { //Cpf de quem recebe/ _id do contato
+    async removeGivenRide(cpf, rideId) { //Cpf de quem recebe/ _id do contato
         var error = ''
-        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { contacts: contactId } },
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { givenRides: rideId } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async addContact(cpf, contactCpf) { //Cpf de quem recebe/ cpf do contato
+        var error = ''
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { contacts: contactCpf } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async removeContact(cpf, contactCpf) { //Cpf de quem recebe/ _id do contato
+        var error = ''
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { contacts: contactCpf } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -187,7 +215,7 @@ class UserRepository {
                             $lookup: {
                                 from: "users",
                                 localField: "contacts",
-                                foreignField: "_id",
+                                foreignField: "cpf",
                                 as: "users_full"
                             }
                         }
@@ -207,6 +235,46 @@ class UserRepository {
 
         //return result
     }
+
+
+    async findContactByCpf(cpfUser, cpfContact) {
+        return new Promise((resolve, reject) => {
+            var error = ''
+            this.userModel.aggregate({
+                        $match: {
+                            cpf: cpfUser
+                        }
+                    }, {
+                        $lookup: {
+                            from: "users",
+                            localField: "contacts",
+                            foreignField: "cpf",
+                            as: "users_full"
+                        }
+                    }, {
+                        $match: {
+                            "users_full.cpf": cpfContact
+                        }
+                    },
+                    (err, res) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        if (res == '') {
+                            reject('Nao eh amigo do carona')
+                        }
+                        resolve(res)
+                    }
+                )
+                /*
+                            if (error !== '') {
+                                throw new Error(error)
+                            }*/
+        })
+
+        //return result
+    }
+
 
     async addVehicle(cpf, plate) { //Cpf de quem recebe/ _id do veiculo
         var error = ''

@@ -20,6 +20,36 @@ class RouteRepository {
             */
     }
 
+    async addCheckpoint(routeId, checkpointId) {
+        var error = ''
+        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $push: { checkpoints: checkpointId } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async setRide(routeId, rideId) {
+        var error = ''
+        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $set: { ride: rideId } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
     async checkpointOwner(routeId, checkpointId) {
         var error = ''
         await this.routeModel.findOneAndUpdate({ _id: routeId }, { $push: { checkpointOwner: checkpointId } },
@@ -52,16 +82,19 @@ class RouteRepository {
     }
 
     async insert(route) {
-        var error = ''
-        var routeRep = new this.routeModel(route)
-        await routeRep.save((err, res) => {
-            if (err) {
-                error = err
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var routeRep = new this.routeModel(route)
+            await routeRep.save((err, res) => {
+                if (err) {
+                    error = err
+                }
+                resolve(res._id)
+            })
+            if (error != '') {
+                throw new Error(error)
             }
         })
-        if (error != '') {
-            throw new Error(error)
-        }
     }
 
     async findAll() {
@@ -92,7 +125,7 @@ class RouteRepository {
                         $lookup: {
                             from: "users",
                             localField: "contacts",
-                            foreignField: "_id",
+                            foreignField: "cpf",
                             as: "users_full"
                         }
                     }, {

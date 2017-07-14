@@ -7,11 +7,12 @@ class RideRepository {
     constructor(connection) {
         this.connection = connection
         this.schema = new mongoose.Schema({
-            user: mongoose.Schema.Types.ObjectId,
-            hitchhikers: [mongoose.Schema.Types.ObjectId],
+            user: String,
+            hitchhikers: [String],
             start: Date, // start time
+            end: Date,
             route: mongoose.Schema.Types.ObjectId,
-            availableSpace: Number,
+            availableSpaces: Number,
             vehicle: mongoose.Schema.Types.ObjectId
         })
         this.rideModel = this.connection.model('Ride', this.schema)
@@ -20,6 +21,32 @@ class RideRepository {
         this.userModel = new UserRepository(connection).userModel
         this.vehicleModel = new VeicleRepository(connection).vehicleModel
         */
+    }
+
+    async setStart(rideId, startDate) {
+        var err = ''
+        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { 'start': startDate } }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+        })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async setEnd(rideId, endDate) {
+        var err = ''
+        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { 'end': endDate } }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+        })
+        if (error !== '') {
+            throw new Error(error)
+        }
     }
 
     async insert(ride) {
@@ -106,7 +133,7 @@ class RideRepository {
                         $lookup: {
                             from: "users",
                             localField: "hitchhikers",
-                            foreignField: "_id",
+                            foreignField: "cpf",
                             as: "hitchhikers_full"
                         }
                     }
@@ -133,7 +160,7 @@ class RideRepository {
                         $lookup: {
                             from: "users",
                             localField: "hitchhikers",
-                            foreignField: "_id",
+                            foreignField: "cpf",
                             as: "hitchhikers_full"
                         }
                     }, {
@@ -171,13 +198,13 @@ class RideRepository {
         return new Promise((resolve, reject) => {
             this.rideModel.aggregate([{
                         $match: {
-                            cpf: '1'
+                            cpf: cpf
                         }
                     }, {
                         $lookup: {
                             from: "users",
-                            localField: "contacts",
-                            foreignField: "_id",
+                            localField: "hitchhikers",
+                            foreignField: "cpf",
                             as: "users_full"
                         }
                     }, {
@@ -194,7 +221,7 @@ class RideRepository {
                     },
                     {
                         $group: {
-                            _id: "$users_full._id",
+                            cpf: "$users_full.cpf",
                             ride: {
                                 $push: "$users_full.rides_full"
                             }
@@ -211,9 +238,9 @@ class RideRepository {
         })
     }
 
-    async setVagas(rideId, number) {
+    async setavailableSpaces(rideId, availableSpaces) {
         var err = ''
-        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { 'availableSpace': number } }, (err, res) => {
+        await this.rideModel.findOneAndUpdate({ _id: rideId }, { $set: { 'availableSpaces': availableSpaces } }, (err, res) => {
             if (err) {
                 error = err
                 return

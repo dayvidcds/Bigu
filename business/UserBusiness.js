@@ -90,21 +90,9 @@ class UserBusiness {
         try {
             this.checkCpf(cpf)
             await this.repository.findContacts(cpf)
-            await this.repository.setRideMode(cpf)
+            await this.repository.setRideMode(cpf, true)
         } catch (error) {
             throw new Error(error)
-        }
-    }
-
-    //VERIFICAR FUNCIONALIDADE DISSO
-    async setRideMode(cpf) {
-        if (cpf != null) {
-            var user
-            try {
-                user = await this.repository.findByCpf(cpf);
-            } catch (error) {
-                throw new Error('User not registered')
-            }
         }
     }
 }

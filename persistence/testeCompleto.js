@@ -13,29 +13,56 @@ function pretty(obj) {
 
 (async() => {
     try {
-        //var veRep = new VehicleRepository(con);
+        var veRep = new VehicleRepository(con);
         var uRep = new UserRepository(con);
-        //var riRep = new RideRepository(con)
-        //var roRep = new RouteRepository(con)
+        var riRep = new RideRepository(con)
+        var roRep = new RouteRepository(con)
 
 
         var reqRideRep = new RequestRideRepository(con)
-        var reqRideBus = new RequestRideBusiness(reqRideRep)
+        var reqRideBus = new RequestRideBusiness(reqRideRep, uRep)
 
-        var user = await uRep.findByCpf('4')
-        pretty(user)
+
+        /*await uRep.insert({
+            cpf: '3',
+            name: 'joao',
+            contacts: ['2']
+        })*/
+
+        //var user = await uRep.findContactByCpf('2', '2')
+        // console.log(user == null)
+        //pretty(user)
 
         var or = { latitude: 1, longitude: 1 }
         var de = { latitude: 2, longitude: 2 }
 
+        roRep.insert({
+            ride: null,
+            origin: { latitude: 1111, longitude: 2222 },
+            destination: { latitude: 5555, longitude: 4444 },
+            checkpointOwner: null,
+            checkpoints: [],
+        })
+
+        /*
+        
+        riRep.insert({
+            user: '1',
+            hitchhikers: [],
+            start: Date.now(), // start time
+            end: null,
+            route: {},
+            availableSpace: 3,
+            vehicle: '1111'
+        })*/
+
+
+
         //console.log(user.contacts.indexOf('594ed6670cc61a92b8c9efe54'))
 
-        var ret = await reqRideBus.requestRide(user, '594ee5aea72b823200179d3c', or, de)
-        pretty(ret)
-        uRep.addRequestRide('4', ret)
+        //await reqRideBus.requestRide(user, '594ee5aea72b823200179d3c', or, de)
 
-
-
+        //reqRideBus.requestRide()
 
 
 

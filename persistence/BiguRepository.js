@@ -6,13 +6,12 @@ var RequestRideRepository = require('./RequestRideRepository')
 class BiguRepository {
     constructor(connection) {
         this.connection = connection
-
         this.Schema = new mongoose.Schema({
             checkin: Boolean,
             checkout: Boolean,
             reservation: mongoose.Schema.Types.ObjectId,
             ride: mongoose.Schema.Types.ObjectId,
-            user: mongoose.Schema.Types.ObjectId
+            user: String
         })
         this.biguModel = this.connection.model('Bigu', this.Schema)
 
@@ -87,9 +86,9 @@ class BiguRepository {
     }
 
     //Utilizar o cpf como parametro | Mudar a chave primaria de usuario para cpf
-    async removeAllFromUser(userId) {
+    async removeAllFromUser(cpf) {
         var error = ''
-        await this.biguModel.remove({ user: userId },
+        await this.biguModel.remove({ user: cpf },
             (err, res) => {
                 if (err) {
                     error = err

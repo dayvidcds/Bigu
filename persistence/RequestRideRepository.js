@@ -28,7 +28,7 @@ class RequestRideRepository {
                 if (err) {
                     error = err
                 }
-                resolve(res)
+                resolve(res._id)
             })
             if (error !== '') {
                 throw new Error(error)
