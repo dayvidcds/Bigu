@@ -86,25 +86,30 @@ class UserRepository {
             result = res
         })
         if (result == null) {
-            throw (new Error('log>> Usuario nao registrado >>' + error))
+            throw (new Error('Usuario nao registrado'))
         }
         return result
     }
 
     async findAll() {
-        var result = null
-        var error = ''
-        await this.userModel.find((err, res) => {
-            if (err) {
-                error = err
-                return
-            }
-            result = res
-        })
-        if (result == null) {
-            throw new Error(error)
-        }
-        return result
+		return new Promise((resolve, reject)={
+			var result = null
+			var error = ''
+			await this.userModel.find((err, res) => {
+				if (err) {
+					error = err
+					return
+				}
+				resolve(res)
+				//result = res
+			})
+			if (error != '') {
+				reject(error)
+				//throw new Error(error)
+			}
+			//return result	
+		})
+        
     }
 
     async addPoints(cpf, points) {
@@ -307,7 +312,7 @@ class UserRepository {
     async findVehicles(cpf) {
         var result = null
         var error = ''
-        await this.userModel.findOne({ cpf: cpf }, { vehicles: 1, _id: 0 }, (err, res) => {
+        await this.userModel.find({ cpf: cpf }, (err, res) => {
             if (err) {
                 error = err
                 return
@@ -318,31 +323,6 @@ class UserRepository {
             throw new Error(error)
         }
         return result
-
-
-        /*return new Promise((resolve, reject) => {
-            this.userModel.aggregate([{
-                        $match: {
-                            cpf: cpf
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "vehicles",
-                            localField: "vehicles",
-                            foreignField: "_id",
-                            as: "vehicles_full"
-                        }
-                    }
-                ],
-                function(err, res) {
-                    if (err) {
-                        reject(err)
-                    }
-                    resolve(res)
-                }
-            )
-        })*/
     }
 
     async addRequestRide(cpf, requestRideId) { //Cpf de quem recebe/ _id do pedido de carona

@@ -1,10 +1,13 @@
-var con = require('./ConnectionDB')
-var UserRepository = require('./UserRepository');
+//var con = require('./ConnectionDB')
+//var UserRepository = require('./UserRepository');
 
 (async() => {
     try {
 
-        var rep = new UserRepository(con);
+        var a = ['111', '222', '333']
+        int
+
+        // var rep = new UserRepository(con);
         /*
                 await rep.insert({
                     cpf: '1111',
@@ -24,9 +27,9 @@ var UserRepository = require('./UserRepository');
         */
         //console.log('listando...' + await rep.listarTodos());
         //await rep.addVehicle('1111', '593481ba69b895bfdb1c940e')
-        console.log('listando: ' + JSON.stringify(await rep.findAll()))
-            //await rep.removeVehicle('1111', '593481ba69b895bfdb1c940e')
-            //console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
+        //  console.log('listando: ' + JSON.stringify(await rep.findAll()))
+        //await rep.removeVehicle('1111', '593481ba69b895bfdb1c940e')
+        //console.log('listando: ' + JSON.stringify(await rep.findVehicles('1111')))
         console.log('Fim.');
     } catch (err) {
         console.log('Erro: ' + err);

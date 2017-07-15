@@ -80,12 +80,12 @@ class RouteRepository {
             throw new Error(error)
         }
     }
-/*
+
     async insert(route) {
         return new Promise((resolve, reject) => {
             var error = ''
             var routeRep = new this.routeModel(route)
-            await routeRep.save((err, res) => {
+            routeRep.save((err, res) => {
                 if (err) {
                     error = err
                 }
@@ -96,7 +96,7 @@ class RouteRepository {
             }
         })
     }
-*/
+
     async findAll() {
         var error = ''
         var result = null

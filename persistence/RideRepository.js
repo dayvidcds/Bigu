@@ -80,29 +80,18 @@ class RideRepository {
 
     async getVehicle(rideId) {
         var error = ''
-        return new Promise((resolve, reject) => {
-            this.rideModel.aggregate([{
-                        $match: {
-                            _id: rideId
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "vehicles",
-                            localField: "vehicle",
-                            foreignField: "_id",
-                            as: "vehicle_full"
-                        }
-                    }
-                ],
-                function(err, res) {
-                    if (err) {
-                        reject(err)
-                    }
-                    resolve(res)
-                }
-            )
+        var result = null
+        await this.rideModel.findOne({ _id: rideId }, { vehicle: 1, _id: 0 }, (err, res) => {
+            if (err) {
+                error = err
+                return
+            }
+            result = res
         })
+        if (result == null) {
+            throw (new Error(error))
+        }
+        return result
     }
 
     async findAll() {

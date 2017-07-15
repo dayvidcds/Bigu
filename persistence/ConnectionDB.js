@@ -19,7 +19,6 @@ mongoose.Promise = global.Promise;
     if (error !== '') {
         throw new Error(error)
     }
-
 })()
 
 module.exports = mongoConn

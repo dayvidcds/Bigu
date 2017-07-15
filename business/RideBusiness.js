@@ -15,29 +15,20 @@ class RideBusiness {
     }
 
     async givenRide(cpf, routeId, startTime, availableSpaces, vehiclePlate) {
-
-
-
-
-
-
-
-
-        var error = '';
+        var error = ''
         try {
-            var userVehicles = uRep.findVehicles(cpf)
-            var userGivenRides = riRep
+            var user = await userRep.findByCpf(cpf)
                 //Verificar se o veiculo pertence ao usuario
-            if (userVehicles.indexOf(vehiclePlate) != -1) {
+            if (user.vehicles.indexOf(vehiclePlate) == -1) {
+                error = 'User can\'t have this vehicle'
+            } else {
                 this.rideRep.insert({
                     user: cpf,
                     start: startTime,
                     route: routeId,
                     availableSpaces: availableSpaces,
-                    //vehicle = userVehicles.
+                    vehicle: vehiclePlate
                 })
-            } else {
-                error = 'User can\'t have this vehicle'
             }
         } catch (err) {
             error = err
