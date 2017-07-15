@@ -80,7 +80,7 @@ class RouteRepository {
             throw new Error(error)
         }
     }
-
+/*
     async insert(route) {
         return new Promise((resolve, reject) => {
             var error = ''
@@ -96,7 +96,7 @@ class RouteRepository {
             }
         })
     }
-
+*/
     async findAll() {
         var error = ''
         var result = null

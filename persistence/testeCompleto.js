@@ -1,19 +1,17 @@
-var con = require('./ConnectionDB')
-var UserRepository = require('./UserRepository');
-var VehicleRepository = require('./VehicleRepository');
-var RideRepository = require('./RideRepository');
-var RouteRepository = require('./RouteRepository');
-var UserBusiness = require('../business/UserBusiness');
-var RequestRideRepository = require('./RequestRideRepository')
-var RequestRideBusiness = require('../business/RequestRideBusiness')
+var con = require('./ConnectionDB');
+var server = require('../modules/Server');
+
 
 function pretty(obj) {
     console.log(JSON.stringify(obj, null, 4));
 }
 
 (async() => {
+
+
+
     try {
-        var veRep = new VehicleRepository(con);
+        /*var veRep = new VehicleRepository(con);
         var uRep = new UserRepository(con);
         var riRep = new RideRepository(con)
         var roRep = new RouteRepository(con)
@@ -22,7 +20,7 @@ function pretty(obj) {
         var reqRideRep = new RequestRideRepository(con)
         var reqRideBus = new RequestRideBusiness(reqRideRep, uRep)
 
-
+*/
         /*await uRep.insert({
             cpf: '3',
             name: 'joao',
@@ -32,7 +30,7 @@ function pretty(obj) {
         //var user = await uRep.findContactByCpf('2', '2')
         // console.log(user == null)
         //pretty(user)
-
+/*
         var or = { latitude: 1, longitude: 1 }
         var de = { latitude: 2, longitude: 2 }
 
@@ -43,7 +41,7 @@ function pretty(obj) {
             checkpointOwner: null,
             checkpoints: [],
         })
-
+*/
         /*
         
         riRep.insert({
