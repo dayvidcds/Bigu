@@ -58,7 +58,6 @@ class RouteRepository {
                     error = err
                     return
                 }
-                ''
             })
 
         if (error !== '') {

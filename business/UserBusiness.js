@@ -63,11 +63,32 @@ class UserBusiness {
         }
     }
 
+    async remove(cpf) {
+        try {
+            this.checkUser(cpf)
+            await this.repository.findByCpf(cpf)
+            await this.repository.remove(cpf);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async addVehicle(cpf, plate) {
         try {
             var user = await this.repository.findByCpf(cpf)
-            if (user.vehicles.indexOf(plate) != -1) {
+            if (user.vehicles.indexOf(plate) == -1) {
                 await this.repository.addVehicle(cpf, plate)
+            }
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    async removeVehicle(cpf, plate) {
+        try {
+            var user = await this.repository.findByCpf(cpf)
+            if (user.vehicles.indexOf(plate) != -1) {
+                await this.repository.removeVehicle(cpf, plate)
             }
         } catch (error) {
             throw new Error(error)
@@ -85,19 +106,6 @@ class UserBusiness {
             throw new Error(error)
         }
         return result
-
-        /*
-        var usreExist = false
-        try {
-            this.checkCpf(cpf)
-            this.repository.findByCpf(cpf)
-            this.repository.findContacts(cpf,
-                (res) => {
-                    callback(res)
-                })
-        } catch (error) {
-            throw new Error(error)
-        */
     }
 
     async activateRideMode(cpf) {

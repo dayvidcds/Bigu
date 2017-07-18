@@ -15,19 +15,11 @@ class UserRepository {
             requestsRide: [mongoose.Schema.Types.ObjectId],
             favoriteRoutes: [mongoose.Schema.Types.ObjectId],
             givenRides: [mongoose.Schema.Types.ObjectId],
+            receivedRides: [mongoose.Schema.Types.ObjectId], //Bigus
             rideMode: Boolean
         })
 
         this.userModel = this.connection.model('User', this.schema)
-
-        //CÓDIGOS PARA TESTE, ABAIX
-        //this.vechicleModel = this.connection.model('Vehicle', { plate: String })
-        //this.rideModel = this.connection.model('Ride', {})
-        //this.routeModel = this.connection.model('Route', {})
-
-        //new VechicleRepository(connection)
-        //new RideRepository(connection)
-        //new RouteRepository(connection)
     }
 
     async setRideMode(cpf, mode) {
@@ -63,7 +55,7 @@ class UserRepository {
         //})
     }
 
-    async removeByCpf(cpf) {
+    async remove(cpf) {
         var error = ''
         await this.userModel.findOneAndRemove({ cpf: cpf }, (err, res) => {
             if (err) {
@@ -76,40 +68,42 @@ class UserRepository {
     }
 
     async findByCpf(cpf) {
-        var error = ''
-        var result = null
-        await this.userModel.findOne({ cpf: cpf }, (err, res) => {
-            if (err) {
-                error = err
-                return
-            }
-            result = res
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var result = null
+            this.userModel.findOne({ cpf: cpf }, (err, res) => {
+                    if (err) {
+                        error = err
+                        reject(err)
+                    }
+                    resolve(res)
+                })
+                //if (result == null) {
+                //      throw (new Error('Usuario nao registrado'))
+                //  }
+                // return result
         })
-        if (result == null) {
-            throw (new Error('Usuario nao registrado'))
-        }
-        return result
+
     }
 
     async findAll() {
-		return new Promise((resolve, reject)={
-			var result = null
-			var error = ''
-			await this.userModel.find((err, res) => {
-				if (err) {
-					error = err
-					return
-				}
-				resolve(res)
-				//result = res
-			})
-			if (error != '') {
-				reject(error)
-				//throw new Error(error)
-			}
-			//return result	
-		})
-        
+        return new Promise((resolve, reject) => {
+            var result = null
+            var error = ''
+            this.userModel.find((err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+                resolve(res)
+                    //result = res
+            })
+            if (error != '') {
+                reject(error)
+                    //throw new Error(error)
+            }
+            //return result	
+        });
     }
 
     async addPoints(cpf, points) {
@@ -179,6 +173,35 @@ class UserRepository {
             throw new Error(error)
         }
     }
+
+    async addReceivedRide(cpf, biguId) { //Cpf de quem recebe/ cpf do contato
+        var error = ''
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { receivedRides: biguId } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
+    async removeReceivedRide(cpf, biguId) { //Cpf de quem recebe/ _id do contato
+        var error = ''
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $pull: { receivedRides: biguId } },
+            (err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+            })
+        if (error !== '') {
+            throw new Error(error)
+        }
+    }
+
 
     async addContact(cpf, contactCpf) { //Cpf de quem recebe/ cpf do contato
         var error = ''
