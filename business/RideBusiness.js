@@ -15,10 +15,7 @@ class RideBusiness {
     async givenRide(cpf, routeId, availableSpaces, vehiclePlate) {
         var error = ''
         try {
-            var user = await userRep.findByCpf(cpf)
-            try {
-                //this.repository.findById(rideId)
-                //Verificar se o veiculo pertence ao usuario
+            userRep.findByCpf(cpf).then((user) => {
                 if (user.vehicles.indexOf(vehiclePlate) == -1) {
                     error = 'User can\'t have this vehicle'
                 } else {
@@ -35,17 +32,13 @@ class RideBusiness {
                         error = "user already in giving ride or in ride"
                     }
                 }
-            } catch (err) {
-                error = err
-            }
+            })
         } catch (err) {
             error = err
         }
         if (error != '') {
             throw new Error(error)
         }
-
     }
-
-
 }
+module.exports = RideBusiness

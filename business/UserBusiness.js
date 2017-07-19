@@ -32,13 +32,17 @@ class UserBusiness {
         try {
             this.checkCpf(userCpf)
             this.checkCpf(contactCpf)
-            var user = await this.repository.findByCpf(userCpf)
-            if (user.contacts.indexOf(contactCpf) == -1) {
-                await this.repository.findByCpf(contactCpf)
-                await this.repository.addContact(userCpf, contactCpf)
-            } else {
-                error = "user contact already registered"
-            }
+            this.repository.findByCpf(userCpf).then((res) => {
+                console.log(res.contacts)
+                if (res.contacts.indexOf(contactCpf) == -1) {
+                    this.repository.findByCpf(contactCpf).then((res) => {
+                        this.repository.addContact(userCpf, contactCpf)
+                    })
+                } else {
+                    error = "user contact already registered"
+                    console.log(error)
+                }
+            })
         } catch (err) {
             error = err
         }
@@ -48,26 +52,27 @@ class UserBusiness {
     }
 
     async insert(user) {
-        var userExist = true
+        var userExist = false
+        var retorno = null
         try {
             this.checkUser(user)
             this.checkCpf(user.cpf)
             this.checkName(user.name)
-            await this.repository.findByCpf(user.cpf)
-            userExist = false
-        } catch (error) {}
-        if (userExist == true) {
-            await this.repository.insert(user);
-        } else {
-            throw new Error('User already registered')
+            this.repository.findByCpf(user.cpf).catch((error) => {
+                console.log(error)
+                this.repository.insert(user)
+            })
+        } catch (error) {
+            console.log(error)
         }
     }
 
     async remove(cpf) {
         try {
             this.checkUser(cpf)
-            await this.repository.findByCpf(cpf)
-            await this.repository.remove(cpf);
+            await this.repository.findByCpf(cpf).then((res) => {
+                this.repository.remove(cpf)
+            })
         } catch (error) {
             console.log(error)
         }
@@ -75,10 +80,13 @@ class UserBusiness {
 
     async addVehicle(cpf, plate) {
         try {
-            var user = await this.repository.findByCpf(cpf)
-            if (user.vehicles.indexOf(plate) == -1) {
-                await this.repository.addVehicle(cpf, plate)
-            }
+            this.repository.findByCpf(cpf).then((res) => {
+                if (res.vehicles.indexOf(plate) == -1) {
+                    this.repository.addVehicle(cpf, plate)
+                } else {
+                    console.log('Veiculo ja eh do usuario')
+                }
+            })
         } catch (error) {
             throw new Error(error)
         }
@@ -86,10 +94,11 @@ class UserBusiness {
 
     async removeVehicle(cpf, plate) {
         try {
-            var user = await this.repository.findByCpf(cpf)
-            if (user.vehicles.indexOf(plate) != -1) {
-                await this.repository.removeVehicle(cpf, plate)
-            }
+            this.repository.findByCpf(cpf).then((res) => {
+                if (res.vehicles.indexOf(plate) != -1) {
+                    this.repository.removeVehicle(cpf, plate)
+                }
+            })
         } catch (error) {
             throw new Error(error)
         }
@@ -100,13 +109,25 @@ class UserBusiness {
         var usreExist = false
         try {
             this.checkCpf(cpf)
-            await this.repository.findByCpf(cpf)
-            result = await this.repository.findContacts(cpf)
+            await this.repository.findByCpf(cpf).then((res) => {
+                result = this.repository.findContacts(cpf)
+                return result
+            })
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    async findAllUsers() {
+        var result = null
+        try {
+            result = await this.repository.findAll()
         } catch (error) {
             throw new Error(error)
         }
         return result
     }
+
 
     async activateRideMode(cpf) {
         try {

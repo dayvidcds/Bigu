@@ -1,4 +1,4 @@
-var express = require('express');
+/*var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 var db = require('../Persistence/ConnectionDB');
@@ -11,9 +11,7 @@ var UserBusiness = require('../business/UserBusiness');
 (async() => {
     var uRep = new UserRepository(db)
     var userBusiness = new UserBusiness(uRep)
-
-    //console.log(uRep)
-    //console.log(userBusiness)
+        //console.log(userBusiness)
     router.get('/teste', (req, res) => {
         console.log('Users')
         res.send('teste ok')
@@ -31,7 +29,7 @@ var UserBusiness = require('../business/UserBusiness');
     //Buscar todos os usuarios -OK
     //Url: localhost:3000/user/find
     router.get('/find', (req, res) => {
-        uRep.findAll().then((resp) => {
+        userBusiness.findAllUsers().then((resp) => {
             res.send(resp)
         })
     })
@@ -47,7 +45,7 @@ var UserBusiness = require('../business/UserBusiness');
         })
     })
 
-    //Inserir usuario - OK
+    //remvoer usuario - OK
     //Parametros: cpf , nome
     router.post('/remove/user', (req, res) => {
         userBusiness.remove(
@@ -89,28 +87,28 @@ var UserBusiness = require('../business/UserBusiness');
         })
     })
 
-
-    /*MULTIPLOS PARAMETROS
-    router.get('/find/:cpf/:idade', (req, res) => {
-            uRep.findByCpf(req.params.cpf).then((resp) => {
-                res.send(resp + '_________' + req.params.idade)
-            })
+*/
+/*MULTIPLOS PARAMETROS
+router.get('/find/:cpf/:idade', (req, res) => {
+        uRep.findByCpf(req.params.cpf).then((resp) => {
+            res.send(resp + '_________' + req.params.idade)
         })
-         */
+    })
+     */
 
-    /*-------async addContact(userCpf, contactCpf)
+/*-------async addContact(userCpf, contactCpf)
 
     ---------async insert(user)
 
     ---------async addVehicle(cpf, plate)
 
-    async removeVehicle(cpf, plate)
+    ---------async removeVehicle(cpf, plate)
 
     async findAllContacts(cpf)
 
     async activateRideMode(cpf)
 */
-
+/*
 })()
 
-module.exports = router;
+module.exports = router;*/

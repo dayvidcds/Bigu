@@ -2,7 +2,7 @@ var app = require('./App');
 var port = process.env.PORT || 3000;
 
 var server = app.listen(port, (err, res) => {
-  var error = ''
+    var error = ''
     if (err) {
         console.log('Server Connection ERROR')
         error = err

@@ -18,7 +18,6 @@ class UserRepository {
             receivedRides: [mongoose.Schema.Types.ObjectId], //Bigus
             rideMode: Boolean
         })
-
         this.userModel = this.connection.model('User', this.schema)
     }
 
@@ -72,16 +71,12 @@ class UserRepository {
             var error = ''
             var result = null
             this.userModel.findOne({ cpf: cpf }, (err, res) => {
-                    if (err) {
-                        error = err
-                        reject(err)
-                    }
-                    resolve(res)
-                })
-                //if (result == null) {
-                //      throw (new Error('Usuario nao registrado'))
-                //  }
-                // return result
+                if (err || (res == null)) {
+                    error = err
+                    reject(err)
+                }
+                resolve(res)
+            })
         })
 
     }

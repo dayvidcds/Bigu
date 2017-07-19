@@ -12,10 +12,13 @@ var UserRepository = require('../persistence/UserRepository');
 (async() => {
     var riRep = new RideRepository(db)
     var uRep = new UserRepository(db)
-    var rideBusiness = new RideBusiness(riRep, uRep)
+        var rideBusiness = new RideBusiness(riRep, uRep)
+         
+        //Busca por caronas dos amigos por cpf
+        //Url: localhost:3000/ride/find/cpf_aqui
 
-    //Busca por caronas dos amigos por cpf
-    //Url: localhost:3000/ride/find/cpf_aqui
+    console.log()
+
     router.get('/given/:cpf/:rideid', (req, res) => {
         uRep.findByCpf(req.params.cpf).then((resp) => {
             res.send(resp)
@@ -40,16 +43,15 @@ var UserRepository = require('../persistence/UserRepository');
             res.send('ok')
         })
     })
-*/
-/*MULTIPLOS PARAMETROS
-router.get('/find/:cpf/:idade', (req, res) => {
-        uRep.findByCpf(req.params.cpf).then((resp) => {
-            res.send(resp + '_________' + req.params.idade)
-        })
-    })
-     */
 
-/*
+    MULTIPLOS PARAMETROS
+    router.get('/find/:cpf/:idade', (req, res) => {
+            uRep.findByCpf(req.params.cpf).then((resp) => {
+                res.send(resp + '_________' + req.params.idade)
+            })
+        })
+         
+
 })()
 
 module.exports = router;*/
