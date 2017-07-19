@@ -428,26 +428,33 @@ class UserRepository {
         var error = ''
         return new Promise((resolve, reject) => {
             this.userModel.aggregate([{
-                    $match: {
-                        cpf: cpf
+                        $match: {
+                            cpf: cpf
+                        }
+                    }, {
+                        $lookup: {
+                            from: "users",
+                            localField: "contacts",
+                            foreignField: "cpf",
+                            as: "users_full"
+                        }
+                    }, {
+                        $unwind: "$users_full"
+                    }, {
+                        $lookup: {
+                            from: "rides",
+                            localField: "users_full.givenRides",
+                            foreignField: "_id",
+                            as: "users_full.rides_full"
+                        }
+                    },
+
+                    {
+                        $match: {
+                            "users_full.rides_full.end": null
+                        }
                     }
-                }, {
-                    $lookup: {
-                        from: "users",
-                        localField: "contacts",
-                        foreignField: "cpf",
-                        as: "users_full"
-                    }
-                }, {
-                    $unwind: "$users_full"
-                }, {
-                    $lookup: {
-                        from: "rides",
-                        localField: "users_full.givenRides",
-                        foreignField: "_id",
-                        as: "users_full.rides_full"
-                    }
-                }],
+                ],
                 function(err, res) {
                     if (err) {
                         reject(err)

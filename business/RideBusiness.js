@@ -13,7 +13,6 @@ class RideBusiness {
         this.routeRep = roRep
     }
 
-
     //Quem deu carona inicou
     async startRide(rideId) {
 

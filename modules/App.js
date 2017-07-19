@@ -174,13 +174,21 @@ routerRide.post('/give', (req, res) => {
     })
 })
 
-//Buscar todas as rotas
+//Buscar todas as rotas dos contatos
 //Url: localhost:3000/user/find
 //userCpf, routeId, availableSpaces, plate
 routerRide.get('/list/:cpf', (req, res) => {
     console.log(req.params.cpf)
     rideBusiness.findContactsRides(req.params.cpf).then((resp) => {
-        console.log('----------------------------------------------' + res)
+        res.send(resp)
+    })
+})
+
+//Iniciar carona -- quem deu a carona
+//Url: localhost:3000/user/find
+//userCpf, routeId, availableSpaces, plate
+routerRide.get('/start/:cpf', (req, res) => {
+    rideBusiness.findContactsRides(req.params.cpf).then((resp) => {
         res.send(resp)
     })
 })
