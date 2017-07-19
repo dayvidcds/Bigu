@@ -58,19 +58,21 @@ class BiguRepository {
     }
 
     async findById(id) {
-        var error = ''
-        var result = null
-        await this.userModel.findOne({ _id: id }, (err, res) => {
-            if (err) {
-                error = err
-                return
-            }
-            result = res
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var result = null
+            this.biguModel.findOne({ _id: id }, (err, res) => {
+                    if (err || res == '' || res == null) {
+                        error = err
+                        reject(res)
+                    }
+                    resolve(res)
+                })
+                /*if (result == null) {
+                    throw (new Error(error))
+                }
+                return result*/
         })
-        if (result == null) {
-            throw (new Error(error))
-        }
-        return result
     }
 
     async remove(id) {

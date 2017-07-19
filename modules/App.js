@@ -7,6 +7,10 @@ var routerUser = express.Router();
 routerUser.use(bodyParser.urlencoded({ extended: true }));
 routerUser.use(bodyParser.json());
 
+var routerBigu = express.Router();
+routerBigu.use(bodyParser.urlencoded({ extended: true }));
+routerBigu.use(bodyParser.json());
+
 var routerRide = express.Router();
 routerRide.use(bodyParser.urlencoded({ extended: true }));
 routerRide.use(bodyParser.json());
@@ -50,6 +54,7 @@ app.use('/user', routerUser);
 
 app.use('/ride', routerRide);
 
+app.use('/bigu', routerBigu);
 
 //INICIO USUÁRIO
 
@@ -187,8 +192,17 @@ routerRide.get('/list/:cpf', (req, res) => {
 //Iniciar carona -- quem deu a carona
 //Url: localhost:3000/user/find
 //userCpf, routeId, availableSpaces, plate
-routerRide.get('/start/:cpf', (req, res) => {
+routerBigu.get('/start/:cpf', (req, res) => {
     rideBusiness.findContactsRides(req.params.cpf).then((resp) => {
+        res.send(resp)
+    })
+})
+
+//Sair da carona -- quem pegou a carona
+//Url: localhost:3000/user/find
+//parametro: biguId
+routerBigu.get('/exit', (req, res) => {
+    biguBusiness.exit(req.params.biguId).then((resp) => {
         res.send(resp)
     })
 })

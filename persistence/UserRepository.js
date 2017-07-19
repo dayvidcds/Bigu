@@ -140,6 +140,33 @@ class UserRepository {
         })
     }
 
+    async findReceivedRide(cpf) {
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                        $match: {
+                            cpf: cpf
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "rides",
+                            localField: "receivedRides",
+                            foreignField: "_id",
+                            as: "received_rides_full"
+                        }
+                    }
+                ],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
+                        return
+                    }
+                    resolve(res)
+                }
+            )
+        })
+    }
+
     async addGivenRide(cpf, rideId) { //Cpf de quem recebe/ cpf do contato
         var error = ''
         await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { givenRides: rideId } },

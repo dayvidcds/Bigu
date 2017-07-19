@@ -50,9 +50,13 @@ class RouteBusiness {
         var latLngOrigin = await getLatLng(origin)
         var latLngDestination = await getLatLng(destination)
 
-        await this.routeRepository.insert({
-            origin: latLngOrigin,
-            destination: latLngDestination
+        return new Promise((resolve, reject) => {
+            this.routeRepository.insert({
+                origin: latLngOrigin,
+                destination: latLngDestination
+            }).then((routeId) => {
+                resolve(routeId)
+            })
         })
 
     }

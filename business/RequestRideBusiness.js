@@ -7,47 +7,48 @@ class RequestRideBusiness {
     }
 
     async requestRide(userCpf, rideId, origin, destination) {
-        var error = ""
-
-        try {
-            this.uRep.findByCpf(userCpf).then((user) => {
-                //Se a carona ja foi dada
-                this.rideRep.findById(rideId).then((ride) => {
-                    //CHECAR SE A CARONA JÁ ATINGIU O LIMITE
-                    if (ride.availableSpaces > 0) {
-                        console.log(ride.user)
-                            //se o user for amigo do carona
-                        if (user.contacts.indexOf(ride.user) == -1) {
-                            throw new Error('Error: user is not friend of carona owner')
-                        }
-                        //se a carona que o user está pedindo ainda não estA na lista das caronas pedidas
-                        if (user.requestsRide.indexOf(rideId) != -1) {
-                            throw new Error('Error: user already on this ride')
-                        }
-                        this.repository.insert({
-                            ride: rideId,
-                            origin: origin,
-                            destination: destination
-                        }).then((id) => {
-                            this.uRep.addRequestRide(userCpf, id)
-                            this.rideRep.setavailableSpaces(rideId, ride.availableSpaces - 1)
-                            this.biRep.insert({
-                                reservation: id,
+        return new Promise((resolve, reject) => {
+            var error = ""
+            try {
+                this.uRep.findByCpf(userCpf).then((user) => {
+                    //Se a carona ja foi dada
+                    this.rideRep.findById(rideId).then((ride) => {
+                        //CHECAR SE A CARONA JÁ ATINGIU O LIMITE
+                        if (ride.availableSpaces > 0) {
+                            console.log(ride.user)
+                                //se o user for amigo do carona
+                            if (user.contacts.indexOf(ride.user) == -1) {
+                                resolve('Error: user is not friend of carona owner')
+                            }
+                            //se a carona que o user está pedindo ainda não estA na lista das caronas pedidas
+                            if (user.requestsRide.indexOf(rideId) != -1) {
+                                resolve('Error: user already on this ride')
+                            }
+                            this.repository.insert({
                                 ride: rideId,
-                                user: userCpf
-                            }).then((biguId) => {
-                                this.rideRep.addHitchhikers(rideId, biguId)
+                                origin: origin,
+                                destination: destination
+                            }).then((id) => {
+                                this.uRep.addRequestRide(userCpf, id)
+                                this.rideRep.setavailableSpaces(rideId, ride.availableSpaces - 1)
+                                this.biRep.insert({
+                                    reservation: id,
+                                    ride: rideId,
+                                    user: userCpf
+                                }).then((biguId) => {
+                                    this.rideRep.addHitchhikers(rideId, biguId)
+                                    resolve('OK. biguId: ' + biguId)
+                                })
                             })
-                        })
-                    } else {
-                        console.log('carona sem espaço')
-                    }
+                        } else {
+                            resolve('carona sem espaço')
+                        }
+                    })
                 })
-
-            })
-        } catch (err) {
-            error = err
-        }
+            } catch (err) {
+                error = err
+            }
+        })
         if (error != "") {
             throw new Error(error)
         }
