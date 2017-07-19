@@ -8,11 +8,29 @@ routerUser.use(bodyParser.json());
 
 var UserRepository = require('../persistence/UserRepository');
 var UserBusiness = require('../business/UserBusiness');
-var UserController = require('../controller/UserController');
-var RideController = require('../controller/RideController');
+//var UserController = require('../controller/UserController');
+
+var RideRepository = require('../persistence/RideRepository');
+var RideBusiness = require('../business/RideBusiness');
+//var RideController = require('../controller/Ri');
+
+var RequestRideRepository = require('../persistence/RequestRideRepository');
+var RequestRideBusiness = require('../business/RequestRideBusiness');
+//var UserController = require('../controller/UserController');
+
+var BiguRepository = require('../persistence/BiguRepository');
+var BiguBusiness = require('../business/BiguBusiness');
+//var UserController = require('../controller/UserController');
 
 var uRep = new UserRepository(db)
+var riRep = new RideRepository(db)
+var reRiRep = new RequestRideRepository(db)
+var biRep = new BiguRepository(db)
+
 var userBusiness = new UserBusiness(uRep)
+var rideBusiness = new RideBusiness(riRep, uRep)
+var requestRideBusiness = new RequestRideBusiness(uRep)
+var biguBusiness = new BiguBusiness(biRep, uRep)
 
 app.use('/a', (er, res) => {
     res.send('Bem Vindo!')
