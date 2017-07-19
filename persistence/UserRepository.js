@@ -82,21 +82,19 @@ class UserRepository {
 
     async findAll() {
         return new Promise((resolve, reject) => {
+            console.log('entrou')
             var result = null
             var error = ''
             this.userModel.find((err, res) => {
-                if (err) {
-                    error = err
-                    return
-                }
-                resolve(res)
-                    //result = res
-            })
-            if (error != '') {
-                reject(error)
-                    //throw new Error(error)
-            }
-            //return result	
+                    if (err) {
+                        error = err
+                        reject(error)
+                    }
+                    console.log(res)
+                    resolve(res)
+                        //result = res
+                })
+                //return result	
         });
     }
 

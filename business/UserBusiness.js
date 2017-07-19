@@ -134,13 +134,17 @@ class UserBusiness {
     }
 
     async findAllUsers() {
-        var result = null
-        try {
-            result = await this.repository.findAll()
-        } catch (error) {
-            throw new Error(error)
-        }
-        return result
+        return new Promise((resolve, reject) => {
+            try {
+                this.repository.findAll().then((res) => {
+                    console.log(res)
+                    resolve(res)
+                })
+
+            } catch (error) {
+                throw new Error(error)
+            }
+        })
     }
 
     async activateRideMode(cpf) {

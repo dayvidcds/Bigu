@@ -41,9 +41,9 @@ var biRep = new BiguRepository(db)
 var roRep = new RouteRepository(db)
 
 var userBusiness = new UserBusiness(uRep)
-var rideBusiness = new RideBusiness(riRep, uRep, roRep)
+var rideBusiness = new RideBusiness(riRep, uRep, roRep, biRep)
 var requestRideBusiness = new RequestRideBusiness(reRiRep, riRep, uRep, biRep)
-var biguBusiness = new BiguBusiness(biRep, uRep)
+var biguBusiness = new BiguBusiness(biRep, uRep, reRiRep)
 var routeBusiness = new RouteBusiness(roRep, riRep)
 
 app.use('/a', (er, res) => {
@@ -77,6 +77,7 @@ routerUser.get('/find/:cpf', (req, res) => {
 //Buscar todos os usuarios -OK
 //Url: localhost:3000/user/find
 routerUser.get('/find', (req, res) => {
+    console.log('entrou')
     userBusiness.findAllUsers().then((resp) => {
         res.send(resp)
     })
@@ -139,16 +140,20 @@ app.use('/a', routerUser);
 //INICIO REQUEST RIDE
 //Pedir carona
 //Url: localhost:3000/user/find
-//userCpf, rideId, origin, destination
+//userCpf, {origin: ruas , destination: ruas}, destination
 routerRide.post('/request', (req, res) => {
     console.log(req.body)
-    requestRideBusiness.requestRide(
-        req.body.userCpf,
-        req.body.rideId,
-        req.body.origin,
-        req.body.destination
-    ).then((resp) => {
-        res.send('ok')
+    routeBusiness.insert(req.body.origin, req.body.destination).then((routeId) => {
+        roRep.findById(routeId).then((ro) => {
+            requestRideBusiness.requestRide(
+                req.body.userCpf,
+                req.body.rideId,
+                ro.origin,
+                ro.destination
+            ).then((resp) => {
+                res.send(resp)
+            })
+        })
     })
 })
 
@@ -166,17 +171,22 @@ routerRide.post('/cancel', (req, res) => {
 
 //Buscar todos os usuarios -OK
 //Url: localhost:3000/user/find
-//userCpf, routeId, availableSpaces, plate
+//userCpf, {origin: ruas , destination: ruas} , availableSpaces, plate
 routerRide.post('/give', (req, res) => {
-    console.log(req.body)
-    rideBusiness.giveRide(
-        req.body.userCpf,
-        req.body.routeId,
-        req.body.availableSpaces,
-        req.body.plate
-    ).then((resp) => {
-        res.send('ok')
+    routeBusiness.insert(req.body.origin, req.body.destination).then((routeId) => {
+        console.log(req.body)
+        rideBusiness.giveRide(
+            req.body.userCpf,
+            routeId,
+            req.body.availableSpaces,
+            req.body.plate
+        ).then((rideId) => {
+            riRep.findById(rideId).then((ride) => {
+                res.send(ride)
+            })
+        })
     })
+
 })
 
 //Buscar todas as rotas dos contatos
@@ -192,8 +202,26 @@ routerRide.get('/list/:cpf', (req, res) => {
 //Iniciar carona -- quem deu a carona
 //Url: localhost:3000/user/find
 //userCpf, routeId, availableSpaces, plate
-routerBigu.get('/start/:cpf', (req, res) => {
-    rideBusiness.findContactsRides(req.params.cpf).then((resp) => {
+routerRide.get('/start/:rideid', (req, res) => {
+    rideBusiness.start(req.params.rideid).then((resp) => {
+        res.send(resp)
+    })
+})
+
+//Encerrar carona -- quem deu a carona
+//Url: localhost:3000/user/find
+//userCpf, routeId, availableSpaces, plate
+routerRide.get('/end/:rideid', (req, res) => {
+    rideBusiness.end(req.params.rideid).then((resp) => {
+        res.send(resp)
+    })
+})
+
+//Entrar da carona -- quem pegou a carona
+//Url: localhost:3000/user/find
+//parametro: biguId
+routerBigu.get('/enter/:biguid', (req, res) => {
+    biguBusiness.enter(req.params.biguid).then((resp) => {
         res.send(resp)
     })
 })
@@ -201,8 +229,8 @@ routerBigu.get('/start/:cpf', (req, res) => {
 //Sair da carona -- quem pegou a carona
 //Url: localhost:3000/user/find
 //parametro: biguId
-routerBigu.get('/exit', (req, res) => {
-    biguBusiness.exit(req.params.biguId).then((resp) => {
+routerBigu.get('/exit/:biguid', (req, res) => {
+    biguBusiness.exit(req.params.biguid).then((resp) => {
         res.send(resp)
     })
 })

@@ -37,7 +37,9 @@ class RequestRideBusiness {
                                     user: userCpf
                                 }).then((biguId) => {
                                     this.rideRep.addHitchhikers(rideId, biguId)
-                                    resolve('OK. biguId: ' + biguId)
+                                    this.biRep.findById(biguId).then((bi) => {
+                                        resolve(bi)
+                                    })
                                 })
                             })
                         } else {

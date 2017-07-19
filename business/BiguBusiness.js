@@ -6,9 +6,11 @@ class BiguBusiness {
     }
 
     //quem pediu carona entrou
-    async start(biguId) {
-        var user = this.uRep.findByCpf(userCpf)
-        this.repository.updateCheckin(biguId, true)
+    async enter(biguId) {
+        this.repository.findById(biguId).then((bigu) => {
+            this.repository.updateCheckin(bigu.id, true)
+            this.reqRideRep.setStartTimeById(bigu.reservation, Date.now())
+        })
     }
 
     //quem pediu carona saiu

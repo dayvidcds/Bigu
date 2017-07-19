@@ -6,10 +6,10 @@ var googleMapsClient = require('@google/maps').createClient({
 
 class RouteBusiness {
     constructor(routeRepository, rideRepository) {
+        console.log('passou no contr')
+
         this.routeRepository = routeRepository
         this.rideRepository = rideRepository
-        this.origin = null
-        this.destination = null
     }
 
     async checkIntersectionOfRoute(routeA, routeB) {
@@ -17,48 +17,45 @@ class RouteBusiness {
         return true
     }
 
-    async getDistance() {
-        distance.get({
-            origin: this.origin,
-            destination: this.destination,
-        }, (err, res) => {
-            if (err) { return console.log(err) }
-            //console.log(res)
-            return res.distance
+    async getDistance(or, de) {
+        return new Promise((resolve, reject) => {
+            distance.get({
+                origin: or,
+                destination: de,
+            }, (err, res) => {
+                resolve(res.distance)
+            })
         })
-
     }
 
     async getLatLng(param) { // nome da rua, cidade, estado
-        googleMapsClient.geocode({
-            address: param
-        }, (err, response) => {
-            if (!err) {
-                return response.json.results[0].geometry.location
-            }
-            console.log(err)
-        });
+        return new Promise((resolve, reject) => {
+            googleMapsClient.geocode({
+                address: param
+            }, (err, response) => {
+                resolve(response.json.results[0].geometry.location)
+            });
+        })
     }
 
     async insert(origin, destination) {
         if (origin == null) throw new Error('Origin is null')
         if (destination == null) throw new Error('Destination is null')
 
-        this.origin = origin
-        this.destination = destination
-
-        var latLngOrigin = await getLatLng(origin)
-        var latLngDestination = await getLatLng(destination)
-
         return new Promise((resolve, reject) => {
-            this.routeRepository.insert({
-                origin: latLngOrigin,
-                destination: latLngDestination
-            }).then((routeId) => {
-                resolve(routeId)
+            this.getLatLng(origin).then((ori) => {
+                this.getLatLng(destination).then((des) => {
+                    console.log('or ' + ori)
+                    console.log('des ' + des)
+                    this.routeRepository.insert({
+                        origin: { latitude: ori.lat, longitude: ori.lng },
+                        destination: { latitude: des.lat, longitude: des.lng }
+                    }).then((routeId) => {
+                        resolve(routeId)
+                    })
+                })
             })
         })
-
     }
 
     async findAll() {

@@ -87,12 +87,13 @@ class RideBusiness {
                         if (resUser.rideMode == false) {
                             this.repository.insert({
                                 user: cpf,
-                                route: null, //COLOCAR ROUTE ID AQUI -------------------------------------------------------------
+                                route: routeId, //COLOCAR ROUTE ID AQUI -------------------------------------------------------------
                                 availableSpaces: availableSpaces,
                                 vehicle: vehiclePlate
                             }).then((id) => {
                                 this.userRep.addGivenRide(cpf, id)
                                 this.userRep.setRideMode(cpf, true)
+                                resolve(id)
                             })
                         } else {
                             error = "user already in giving ride or in ride"

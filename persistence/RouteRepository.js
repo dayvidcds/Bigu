@@ -80,9 +80,31 @@ class RouteRepository {
         }
     }
 
+
+    async findById(routeId) {
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var result = null
+            this.routeModel.findOne({ _id: routeId }, (err, res) => {
+                if (err) {
+                    error = err
+                    reject(err)
+                }
+                if (res == null || res == '') {
+                    console.log('route not exist')
+                    reject('route not exist')
+                } else {
+                    console.log('_' + res + '_')
+                    resolve(res)
+                }
+            })
+        })
+    }
+
     async insert(route) {
         return new Promise((resolve, reject) => {
             var error = ''
+            console.log('------------------------  ' + route)
             var routeRep = new this.routeModel(route)
             routeRep.save((err, res) => {
                 if (err) {
