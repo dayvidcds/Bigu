@@ -60,7 +60,12 @@ class UserBusiness {
             this.checkName(user.name)
             this.repository.findByCpf(user.cpf).catch((error) => {
                 console.log(error)
-                this.repository.insert(user)
+                this.repository.insert({
+                    cpf: user.cpf,
+                    name: user.name,
+                    points: 0,
+                    rideMode: false
+                })
             })
         } catch (error) {
             console.log(error)
@@ -105,17 +110,27 @@ class UserBusiness {
     }
 
     async findAllContacts(cpf) {
-        var result = null
-        var usreExist = false
-        try {
-            this.checkCpf(cpf)
-            await this.repository.findByCpf(cpf).then((res) => {
-                result = this.repository.findContacts(cpf)
-                return result
-            })
-        } catch (error) {
-            throw new Error(error)
-        }
+        return new Promise((resolve, reject) => {
+            var result = null
+            var usreExist = false
+            var error = ''
+            try {
+                this.checkCpf(cpf)
+                this.repository.findByCpf(cpf).then((res) => {
+                    this.repository.findContacts(cpf).then((contacts) => {
+                        if (contacts == '' || contacts == null) {
+                            error = 'Contact not exist'
+                        } else {
+                            resolve(contacts)
+                        }
+                    })
+                })
+            } catch (error) {
+                throw new Error(error)
+            }
+
+        })
+
     }
 
     async findAllUsers() {
@@ -128,11 +143,10 @@ class UserBusiness {
         return result
     }
 
-
     async activateRideMode(cpf) {
         try {
             this.checkCpf(cpf)
-            await this.repository.findContacts(cpf)
+            await this.repository.findByCpf(cpf)
             await this.repository.setRideMode(cpf, true)
         } catch (error) {
             throw new Error(error)

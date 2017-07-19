@@ -24,8 +24,7 @@ class UserRepository {
     async setRideMode(cpf, mode) {
         //return Promise.all()
         var error = ''
-        var userRep = new this.userModel(user)
-        await userRep.findOneAndUpdate({ cpf: cpf }, { $set: { rideMode: mode } },
+        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $set: { rideMode: mode } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -424,6 +423,44 @@ class UserRepository {
             throw new Error(error)
         }
     }
+
+    async findContactsRides(cpf) {
+        var error = ''
+        return new Promise((resolve, reject) => {
+            this.userModel.aggregate([{
+                    $match: {
+                        cpf: cpf
+                    }
+                }, {
+                    $lookup: {
+                        from: "users",
+                        localField: "contacts",
+                        foreignField: "cpf",
+                        as: "users_full"
+                    }
+                }, {
+                    $unwind: "$users_full"
+                }, {
+                    $lookup: {
+                        from: "rides",
+                        localField: "users_full.givenRides",
+                        foreignField: "_id",
+                        as: "users_full.rides_full"
+                    }
+                }],
+                function(err, res) {
+                    if (err) {
+                        reject(err)
+                    }
+                    resolve(res)
+                }
+            )
+        })
+    }
+
+
+
+
 
     async findFavoriteRoutes(cpf) {
         return new Promise((resolve, reject) => {

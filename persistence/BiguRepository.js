@@ -41,18 +41,20 @@ class BiguRepository {
     }
 
     async insert(bigu) {
-        var error = ''
-        var biguRep = new this.biguModel(bigu)
-        await biguRep.save(
-            (err, res) => {
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var biguRep = new this.biguModel(bigu)
+            biguRep.save((err, res) => {
                 if (err) {
                     error = err
-                    return
                 }
+                if (error !== '') {
+                    throw new Error(error)
+                }
+                resolve(res._id)
             })
-        if (error !== '') {
-            throw new Error(error)
-        }
+
+        })
     }
 
     async findById(id) {
