@@ -13,7 +13,14 @@ class RideBusiness {
         this.routeRep = roRep
     }
 
-    async closeRide(rideId) {
+
+    //Quem deu carona inicou
+    async startRide(rideId) {
+
+    }
+
+    //Quem deu carona encerrou
+    async endRide(rideId) {
 
     }
 

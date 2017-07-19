@@ -4,6 +4,17 @@ class BiguBusiness {
         this.userRep = uRep
     }
 
+
+    //quem pediu carona entrou
+    async start() {
+
+    }
+
+    //quem pediu carona saiu
+    async stop() {
+
+    }
+
     async ckeckin(biguId, userCpf) {
         var user = this.uRep.findByCpf(userCpf)
         this.repository.updateCheckin(biguId, true)
