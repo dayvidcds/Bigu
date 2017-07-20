@@ -1,0 +1,100 @@
+"INSERIR USUÁRIO":
+{
+	requisicao: 'POST',
+	alvo: 'localhost:3000/user/insert/user',
+	parametros: cpf, name
+}
+
+"INSERIR USUÁRIO":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/user/insert/user',
+	parametros: cpf, name
+}
+
+"BUSCAR USUÁRIOS":
+{
+	requisicao: GET,
+	alvo: 'localhost:3000/user/find',
+}
+
+"INSERIR CONTATO EM USUÁRIO":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/user/insert/contact/',
+	parametros: usercpf, contactcpf
+}
+
+"INSERIR VEÍCULO EM USUÁRIO":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/user/insert/vehicle/',
+	parametros: cpf, plate
+}
+
+"BUSCAR CARONAS DADAS CONTATOS":
+{
+	requisicao: GET,
+	alvo: 'localhost:3000/user/find/CPF_DO_USUARIO_AQUI',
+}
+
+"DAR CARONA":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/ride/give',
+	parametros: JSON: {
+							"userCpf": "1",
+							"origin": "Cha Grande, PE",
+							"destination": "Gravatá, PE",
+							"availableSpaces":2,
+							"plate": "2222"
+						}
+}
+
+"PEDIR CARONA":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/ride/request',
+	parametros: JSON: {
+							"userCpf":"2",
+							"rideId": "59706d2d3c9c8c3be493ce24",
+							"origin": "Rosa Flores, Av. Cicero Batista de Oliveira, 16282-16682 - Novo Gravata, Gravata - PE",
+							"destination": "Gravatá, PE"
+						}
+}
+
+"INICIAR CARONA - QUEM DEU A CARONA":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/ride/start',
+	parametros: JSON: { 
+							"rideId": "59706d2d3c9c8c3be493ce24", 
+							"position": "Cha Grande, PE"
+						}
+}
+
+OBS: Quando uma carona é iniciada, o PRODUTOR de checkpoins (Producer do Rabbitmq) deve ser iniciado. 
+Ele se encontra em modules, com o nome Producer.js.
+Ao ser iniciado, aguarda por strings de pontos de referencia, que são enviadas ao rabbitmq e consumidas pelo servidor, onde são transformadas em latitude e longitude pela api do GoogleMaps.
+
+"ENTRAR EM UMA CARONA - QUEM PEDIU A CARONA":
+{
+	requisicao: POST,
+	alvo: 'localhost:3000/bigu/enter',
+	parametros: JSON: {
+							"biguid": "59706d783c9c8c3be493ce27",
+							"location": "Rosa Flores, Av. Cicero Batista de Oliveira, 16282-16682 - Novo Gravata, Gravata - PE"
+						}
+}
+
+"SAIR DE UMA CARONA - QUEM PEDIU A CARONA":
+{
+	requisicao: GET,
+	alvo: 'localhost:3000/bigu/exit/BIGU_ID_DE_QUEM_PEDIU_AQUI',
+}
+
+"ENCERRAR UMA CARONA - QUEM DEU A CARONA":
+{
+	requisicao: GET,
+	alvo: 'localhost:3000/ride/end/CARONA_ID_AQUI',
+}
