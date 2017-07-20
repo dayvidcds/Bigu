@@ -1,7 +1,7 @@
 {
-    "endereco": "localhost",
-    "porta": 27017,
+    "address": "localhost",
+    "port": 27018,
     "db": "teste",
-    "usuario": "",
-    "senha": ""
+    "user": "",
+    "pass": ""
 }
