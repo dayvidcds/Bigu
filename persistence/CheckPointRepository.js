@@ -11,18 +11,43 @@ class CheckPointRepository {
     }
 
     async insert(checkPoint) {
-        var error = ''
-        var checkRep = new this.checkPointModel(checkPoint)
-        await this.checkPointModel.save((err, res) => {
-            if (err) {
-                error = err
-                return
-            }
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var checkRep = new this.checkPointModel(checkPoint)
+            checkRep.save((err, res) => {
+                if (err) {
+                    error = err
+                    return
+                }
+                resolve(res)
+                if (error != '') {
+                    throw new Error(error)
+                }
+            })
         })
-        if (error !== '') {
-            throw new Error(error)
-        }
     }
+
+    async findById(chkId) {
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var result = null
+            this.checkPointModel.findOne({ _id: chkId }, (err, res) => {
+                if (err) {
+                    error = err
+                    reject(err)
+                }
+                if (res == null || res == '') {
+                    console.log('chk  not exist')
+                    reject('chk not exist')
+                } else {
+                    //console.log('_' + res + '_')
+                    resolve(res)
+                }
+            })
+        })
+
+    }
+
 
     async getCheckPoint(chkId) {
         var error = ''

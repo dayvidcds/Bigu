@@ -1,6 +1,6 @@
 {
     "address": "localhost",
-    "port": 27018,
+    "port": 27017,
     "db": "teste",
     "user": "",
     "pass": ""

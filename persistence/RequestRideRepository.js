@@ -9,8 +9,7 @@ class RequestRideRepository {
             origin: { latitude: Number, longitude: Number },
             destination: { latitude: Number, longitude: Number },
             startTime: Date,
-            endTime: Date,
-            date: Date
+            endTime: Date
         })
         this.requestRideModel = this.connection.model('RequestRide', this.Schema)
             //this.rideModel = new RideRepository(connection).rideModel
@@ -75,32 +74,53 @@ class RequestRideRepository {
         }
     }
 
-    async findById(id) {
-        var error = ''
-        return new Promise((resolve, reject) => {
-            this.requestRideModel.aggregate([{
-                        $match: {
-                            _id: id
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "rides",
-                            localField: "ride",
-                            foreignField: "_id",
-                            as: "ride_full"
-                        }
-                    }
-                ],
-                function(err, res) {
+    async findById(reRideId) {
+            return new Promise((resolve, reject) => {
+                var error = ''
+                var result = null
+                this.requestRideModel.findOne({ _id: reRideId }, (err, res) => {
                     if (err) {
+                        error = err
                         reject(err)
                     }
-                    resolve(res)
-                }
-            )
-        })
-    }
+                    if (res == null || res == '') {
+                        console.log('request ride not exist')
+                        reject('request ride not exist')
+                    } else {
+                        //console.log('_' + res + '_')
+                        resolve(res)
+                    }
+                })
+            })
+
+        }
+        /*
+            async findById(id) {
+                var error = ''
+                return new Promise((resolve, reject) => {
+                    this.requestRideModel.aggregate([{
+                                $match: {
+                                    _id: id
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: "rides",
+                                    localField: "ride",
+                                    foreignField: "_id",
+                                    as: "ride_full"
+                                }
+                            }
+                        ],
+                        function(err, res) {
+                            if (err) {
+                                reject(err)
+                            }
+                            resolve(res)
+                        }
+                    )
+                })
+            }*/
 
     async findAll() {
         var error = ''

@@ -79,12 +79,11 @@ class RideRepository {
                     console.log('ride not exist')
                     reject('ride not exist')
                 } else {
-                    console.log('_' + res + '_')
+                    //console.log('_' + res + '_')
                     resolve(res)
                 }
             })
         })
-
     }
 
     async getVehicle(rideId) {

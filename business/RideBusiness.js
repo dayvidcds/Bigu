@@ -24,7 +24,7 @@ class RideBusiness {
                     ride.hitchhikers.forEach((value, index, array) => {
                         this.biguRepository.findById(value).then((bigu) => {
                             this.userRep.setRideMode(bigu.user, true)
-                            resolve('INICIADA. OK')
+                            resolve(ride)
                         })
                     })
                 })

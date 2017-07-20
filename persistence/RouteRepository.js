@@ -52,7 +52,7 @@ class RouteRepository {
 
     async checkpointOwner(routeId, checkpointId) {
         var error = ''
-        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $push: { checkpointOwner: checkpointId } },
+        await this.routeModel.findOneAndUpdate({ _id: routeId }, { $set: { checkpointOwner: checkpointId } },
             (err, res) => {
                 if (err) {
                     error = err
@@ -94,7 +94,7 @@ class RouteRepository {
                     console.log('route not exist')
                     reject('route not exist')
                 } else {
-                    console.log('_' + res + '_')
+                    //console.log('_' + res + '_')
                     resolve(res)
                 }
             })

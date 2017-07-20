@@ -34,17 +34,24 @@ var BiguBusiness = require('../business/BiguBusiness');
 var RouteRepository = require('../persistence/RouteRepository');
 var RouteBusiness = require('../business/RouteBusiness');
 
+var CheckPointRepository = require('../persistence/CheckPointRepository');
+//var RouteBusiness = require('../business/RouteBusiness');
+
 var uRep = new UserRepository(db)
 var riRep = new RideRepository(db)
 var reRiRep = new RequestRideRepository(db)
 var biRep = new BiguRepository(db)
 var roRep = new RouteRepository(db)
+var chkRep = new CheckPointRepository(db)
 
 var userBusiness = new UserBusiness(uRep)
 var rideBusiness = new RideBusiness(riRep, uRep, roRep, biRep)
 var requestRideBusiness = new RequestRideBusiness(reRiRep, riRep, uRep, biRep)
-var biguBusiness = new BiguBusiness(biRep, uRep, reRiRep)
+var biguBusiness = new BiguBusiness(biRep, uRep, reRiRep, riRep, roRep, chkRep)
 var routeBusiness = new RouteBusiness(roRep, riRep)
+
+var Consumer = require('./Consumer');
+var consumer = new Consumer()
 
 app.use('/a', (er, res) => {
     res.send('Bem Vindo!')
@@ -202,9 +209,32 @@ routerRide.get('/list/:cpf', (req, res) => {
 //Iniciar carona -- quem deu a carona
 //Url: localhost:3000/user/find
 //userCpf, routeId, availableSpaces, plate
-routerRide.get('/start/:rideid', (req, res) => {
-    rideBusiness.start(req.params.rideid).then((resp) => {
-        res.send(resp)
+routerRide.post('/start', (req, res) => {
+    rideBusiness.start(req.body.rideId).then((ride) => {
+        res.send(ride)
+            /*{ rideId: ,  position: "nome da rua"}*/
+        var oldPosition = ''
+        consumer.start('owner_checkpoints', (msg) => {
+            console.log('MSG: ' + JSON.stringify(msg))
+            riRep.findById(msg.rideId).then((ri) => {
+                /*timestamp: Date,position: String*/
+                //if (oldPosition != msg.position) {
+                routeBusiness.getLatLng(req.body.position).then((latLong) => {
+                        var location = {
+                            latitude: latLong.lat,
+                            longitude: latLong.lng
+                        }
+                        chkRep.insert({
+                            timestamp: Date.now(),
+                            position: location
+                        }).then((chk) => {
+                            roRep.checkpointOwner(ri.route, chk._id)
+                                // oldPosition = msg.position
+                        })
+                    })
+                    // }
+            })
+        })
     })
 })
 
@@ -220,9 +250,18 @@ routerRide.get('/end/:rideid', (req, res) => {
 //Entrar da carona -- quem pegou a carona
 //Url: localhost:3000/user/find
 //parametro: biguId
-routerBigu.get('/enter/:biguid', (req, res) => {
-    biguBusiness.enter(req.params.biguid).then((resp) => {
-        res.send(resp)
+routerBigu.post('/enter', (req, res) => {
+    console.log('enctrou')
+    console.log(req.body.location)
+    routeBusiness.getLatLng(req.body.location).then((latLong) => {
+        var location = {
+            latitude: latLong.lat,
+            longitude: latLong.lng
+        }
+        console.log(location)
+        biguBusiness.enter(req.body.biguid, location).then((resp) => {
+            res.send(resp)
+        })
     })
 })
 
@@ -233,6 +272,14 @@ routerBigu.get('/exit/:biguid', (req, res) => {
     biguBusiness.exit(req.params.biguid).then((resp) => {
         res.send(resp)
     })
+})
+
+//Sair da carona -- quem pegou a carona
+//Url: localhost:3000/user/find
+//parametro: biguId
+routerRide.get('/location/:location', (req, res) => {
+    routeBusiness.getDistance()
+    req.params.location
 })
 
 module.exports = app
