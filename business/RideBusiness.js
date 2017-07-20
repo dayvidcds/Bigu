@@ -19,11 +19,12 @@ class RideBusiness {
         return new Promise((resolve, reject) => {
             var error = ""
             try {
-                this.rideRep.findById(rideId).then((ride) => {
-                    this.rideRep.setStart(rideId, Date.now())
+                this.repository.findById(rideId).then((ride) => {
+                    this.repository.setStart(rideId, Date.now())
                     ride.hitchhikers.forEach((value, index, array) => {
                         this.biguRepository.findById(value).then((bigu) => {
                             this.userRep.setRideMode(bigu.user, true)
+                            resolve('INICIADA. OK')
                         })
                     })
                 })
@@ -38,19 +39,27 @@ class RideBusiness {
 
     //Quem deu carona encerrou
     async end(rideId) {
-        var error = ''
-        try {
-            if (rideId == null || cpf == null) {
-                error = "dados invalidos"
-            } else {
-                repository.findById(rideId).then((ri) => {
-                    repository.setEnd(rideId, Date.now())
-                    userRep.addPoints(ri.user, 1)
-                })
+        return new Promise((resolve, reject) => {
+            var error = ''
+            try {
+                if (rideId == null) {
+                    error = "dados invalidos"
+                } else {
+                    this.repository.findById(rideId).then((ri) => {
+                        if (ri.end == null) {
+                            this.repository.setEnd(rideId, Date.now())
+                            this.userRep.setRideMode(ri.user, false)
+                            this.userRep.addPoints(ri.user, 1)
+                            resolve('ENCERRADA. OK')
+                        } else {
+                            resolve('QUER ME TROLLAR, INUTIL? OK')
+                        }
+                    })
+                }
+            } catch (error) {
+                throw new Error(error)
             }
-        } catch (error) {
-            throw new Error(error)
-        }
+        })
     }
 
     async findContactsRides(cpf) {
@@ -87,7 +96,7 @@ class RideBusiness {
                         if (resUser.rideMode == false) {
                             this.repository.insert({
                                 user: cpf,
-                                route: routeId, //COLOCAR ROUTE ID AQUI -------------------------------------------------------------
+                                route: routeId,
                                 availableSpaces: availableSpaces,
                                 vehicle: vehiclePlate
                             }).then((id) => {

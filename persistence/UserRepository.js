@@ -473,10 +473,10 @@ class UserRepository {
                             as: "users_full.rides_full"
                         }
                     },
-
                     {
                         $match: {
-                            "users_full.rides_full.end": null
+                            "users_full.rides_full.end": null,
+                            "users_full.rides_full.start": null
                         }
                     }
                 ],
