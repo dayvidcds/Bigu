@@ -63,7 +63,7 @@ app.use('/ride', routerRide);
 
 app.use('/bigu', routerBigu);
 
-//INICIO USUÁRIO
+//INICIO USUÁRIOa
 
 //console.log(userBusiness)
 routerUser.get('teste/', (req, res) => {
