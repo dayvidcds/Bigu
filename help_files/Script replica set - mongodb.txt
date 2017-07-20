@@ -1,0 +1,105 @@
+colocar o mongo na variável de ambiente PATH C:\Program Files\MongoDB\Server\3.4\bin
+
+-- Comando para criar os diretórios do replica set
+mkdir C:\data\db\replica\rs0-0 C:\data\db\replica\rs0-1 C:\data\db\replica\rs0-2
+
+-- Comandos para iniciar os membros do replica set
+mongod --port 27017 --dbpath "C:\data\db\replica\rs0-0" --replSet rs0 --smallfiles --oplogSize 128
+mongod --port 27018 --dbpath "C:\data\db\replica\rs0-1" --replSet rs0 --smallfiles --oplogSize 128
+mongod --port 27019 --dbpath "C:\data\db\replica\rs0-2" --replSet rs0 --smallfiles --oplogSize 128
+
+-- conectando, como cliente, em uma das instâncias
+mongo --port 27017
+
+-- Comando para configurar o replica set e adicionando o primeiro membro
+
+config = {
+  _id: "rs0",
+  members: [
+    {
+      _id: 0,
+      host: "localhost:27017"
+    }
+  ]
+}
+
+rs.initiate(config)
+
+-- Comando para checar qual membro é o primário, após isso, você estará logado como primário 
+rs.isMaster()
+
+-- Comando para exibir as configurações
+rs.conf()
+
+-- Comando para adicionar os membros
+rs.add("localhost:27018")
+
+rs.add("localhost:27019")
+
+-- Conectando como membro secundario, para dar permissões de acesso
+mongo --port 27018
+
+-- O comando abaixo deve ser executado nos membros secundários 
+rs.slaveOk(true)
+
+-- Até aqui a configuração está completa
+
+
+
+
+-- Comandos úteis
+	-- Listar os Bancos
+	show dbs
+	
+	-- Entrar em um Bancos, caso o banco não exista, ele será criado temporariamente.
+	-- Só será de fato persistido, se alguma inserção for realizada
+	DICA: Você só poderá realizar consultas se estiver dentro de um banco
+	use nome_do_db
+	
+	-- Destruir um banco, lembrando que deve estar dentro do banco
+	db.dropDatabase()  
+	
+	
+-- Consultas Básicas ** Esteja dentro de um banco
+	-- Inserção:
+		DICA: Os documentos em uma collection não necessitam ter a mesma estrutura, podendo inserir objetos com campos a mais ou a menos
+		
+		--Exemplo: db.alunos.insert({'cpf':'12345', 'nome':'zezinho'})
+		
+		DICA: podemos inserir arrays dentro de um objeto
+		--Exemplo: db.alunos.insert({'cpf':'54321', 'nome':'manezinho', 'disciplinas': ['calculo 1', 'db 2', 'lpa 1']})
+		
+		DICA: você pode inserir um objeto dentro de outro, nesse casso um array de objetos
+		--Exemplo: db.alunos.insert({'cpf':'54321', 'nome':'manezinho', 'disciplinas': [{'nome':'calculo 1', 'aprovado': true}, {'nome': 'lpa 1'}]})
+	
+	-- Busca:
+		--Retornar todos os documentos de uma collection
+		db.nome_da_collection.find()
+		
+		--Retornar documentos especificos
+		db.nome_da_collection.find({'campo':'valor_a_comparar'})
+		--Exemplo: db.alunos.find({'cpf':'12345'})
+		
+		DICA: você pode escolher quais campos serão retornados, como por exemplo: Só se deseja obter o nome, sem id
+		--Exemplo: db.alunos.find({'cpf':'12345'}, {'_id': 0, 'nome':1})
+		
+	-- Atualização
+		--Modificar campos de um documento(O comando $set especifica que desejamos mudar o valor de algum campo)
+		db.alunos.findOneAndUpdate({'cpf':'12345'}, {$set: {'nome': 'trollino'}})
+		
+		--Modificar todos os documentos que possuam determinada caracteristica
+		db.alunos.updateMany({'campo':'valor_a_comparar'}, {$set: {'campo_a_mudar': 'valor'}})
+		
+		--Inserir mais um elemento dentro de um array de um documento
+		db.alunos.findOneAndUpdate({'cpf':'12345'}, {$push: {'disciplinas': 'GTI'}})
+		
+	-- Remoção
+		-- Remover um elemento de um array
+		db.alunos.findOneAndUpdate({'cpf':'12345'}, {$pull: {'disciplinas': 'GTI'}})
+	
+		-- Remover um documentos
+			db.alunos.findOneAndRemove({'cpf':'12345'})
+		
+		-- remover todos os documentos
+			db.alunos.remove({})
+	
