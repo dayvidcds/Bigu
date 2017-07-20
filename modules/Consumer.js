@@ -4,7 +4,6 @@ class Consumer {
     constructor() {
         this.connection = null
     }
-
     async start(queue, callback) {
         var url = 'amqp://localhost'
         amqp.connect(url, { userId: 2 }).then((conn) => {

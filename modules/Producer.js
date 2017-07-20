@@ -5,7 +5,7 @@ class Producer {
         this.connection = null
     }
 
-    async start(queue, callback) {
+    async start() {
         return new Promise((resove, reject) => {
             var url = 'amqp://localhost'
             amqp.connect(url, { userId: 2 }).then((conn) => {

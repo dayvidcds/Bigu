@@ -27,49 +27,58 @@ class UserBusiness {
     }
 
     async addContact(userCpf, contactCpf) {
-        var contact = null
-        var error = ''
-        try {
-            this.checkCpf(userCpf)
-            this.checkCpf(contactCpf)
-            this.repository.findByCpf(userCpf).then((res) => {
-                console.log(res.contacts)
-                if (res.contacts.indexOf(contactCpf) == -1) {
-                    this.repository.findByCpf(contactCpf).then((res) => {
-                        this.repository.addContact(userCpf, contactCpf)
-                    })
-                } else {
-                    error = "user contact already registered"
-                    console.log(error)
-                }
-            })
-        } catch (err) {
-            error = err
-        }
-        if (error != '') {
-            throw new Error(error)
-        }
+        return new Promise((resolve, reject) => {
+            var contact = null
+            var error = ''
+            try {
+                this.checkCpf(userCpf)
+                this.checkCpf(contactCpf)
+                this.repository.findByCpf(userCpf).then((res) => {
+                    console.log(res.contacts)
+                    if (res.contacts.indexOf(contactCpf) == -1) {
+                        this.repository.findByCpf(contactCpf).then((res) => {
+                            this.repository.addContact(userCpf, contactCpf).then((cont) => {
+                                resolve(cont)
+                            })
+                        })
+                    } else {
+                        error = "user contact already registered"
+                        console.log(error)
+                    }
+                    if (error != '') {
+                        throw new Error(error)
+                    }
+                })
+            } catch (err) {
+                error = err
+            }
+        })
+
     }
 
     async insert(user) {
-        var userExist = false
-        var retorno = null
-        try {
-            this.checkUser(user)
-            this.checkCpf(user.cpf)
-            this.checkName(user.name)
-            this.repository.findByCpf(user.cpf).catch((error) => {
-                console.log(error)
-                this.repository.insert({
-                    cpf: user.cpf,
-                    name: user.name,
-                    points: 0,
-                    rideMode: false
+        return new Promise((resolve, reject) => {
+            var userExist = false
+            var retorno = null
+            try {
+                this.checkUser(user)
+                this.checkCpf(user.cpf)
+                this.checkName(user.name)
+                this.repository.findByCpf(user.cpf).catch((error) => {
+                    console.log(error)
+                    this.repository.insert({
+                        cpf: user.cpf,
+                        name: user.name,
+                        points: 0,
+                        rideMode: false
+                    }).then((u) => {
+                        resolve(u)
+                    })
                 })
-            })
-        } catch (error) {
-            console.log(error)
-        }
+            } catch (error) {
+                console.log(error)
+            }
+        })
     }
 
     async remove(cpf) {

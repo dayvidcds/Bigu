@@ -97,7 +97,7 @@ routerUser.post('/insert/user', (req, res) => {
         cpf: req.body.cpf,
         name: req.body.name
     }).then((resp) => {
-        res.send('ok')
+        res.send(resp)
     })
 })
 
@@ -119,7 +119,7 @@ routerUser.post('/insert/contact', (req, res) => {
         req.body.usercpf,
         req.body.contactcpf
     ).then((resp) => {
-        res.send('ok')
+        res.send(resp)
     })
 })
 
@@ -219,7 +219,7 @@ routerRide.post('/start', (req, res) => {
             riRep.findById(msg.rideId).then((ri) => {
                 /*timestamp: Date,position: String*/
                 //if (oldPosition != msg.position) {
-                routeBusiness.getLatLng(req.body.position).then((latLong) => {
+                routeBusiness.getLatLng(msg.position).then((latLong) => {
                         var location = {
                             latitude: latLong.lat,
                             longitude: latLong.lng
@@ -251,7 +251,6 @@ routerRide.get('/end/:rideid', (req, res) => {
 //Url: localhost:3000/user/find
 //parametro: biguId
 routerBigu.post('/enter', (req, res) => {
-    console.log('enctrou')
     console.log(req.body.location)
     routeBusiness.getLatLng(req.body.location).then((latLong) => {
         var location = {

@@ -36,21 +36,22 @@ class UserRepository {
     }
 
     async insert(user) {
-        //return new Promise((resolve, reject) => {
-        var error = ''
-        var userRep = new this.userModel(user);
-        //await
-        await userRep.save((err, res) => {
-            if (err) {
-                error = err
-            }
-            //resolve(res)
+        return new Promise((resolve, reject) => {
+            var error = ''
+            var userRep = new this.userModel(user);
+            userRep.save((err, res) => {
+                if (err) {
+                    error = err
+                }
+                if (error !== '') {
+                    //throw new Error(error)
+                    reject
+                }
+                resolve(res)
+            })
+
         })
-        if (error !== '') {
-            throw new Error(error)
-        }
-        //})
-        //})
+
     }
 
     async remove(cpf) {
@@ -223,17 +224,19 @@ class UserRepository {
 
 
     async addContact(cpf, contactCpf) { //Cpf de quem recebe/ cpf do contato
-        var error = ''
-        await this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { contacts: contactCpf } },
-            (err, res) => {
-                if (err) {
-                    error = err
-                    return
-                }
-            })
-        if (error !== '') {
-            throw new Error(error)
-        }
+        return new Promise((resolve, reject) => {
+            var error = ''
+            this.userModel.findOneAndUpdate({ cpf: cpf }, { $push: { contacts: contactCpf } },
+                (err, res) => {
+                    if (err) {
+                        error = err
+                    }
+                    if (error !== '') {
+                        throw new Error(error)
+                    }
+                    resolve(res)
+                })
+        })
     }
 
     async removeContact(cpf, contactCpf) { //Cpf de quem recebe/ _id do contato

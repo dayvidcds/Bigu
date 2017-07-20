@@ -49,9 +49,9 @@ class BiguBusiness {
                                         if (dist <= 100) {
                                             this.repository.updateCheckin(bigu.id, true)
                                             this.reqRideRep.setStartTimeById(bigu.reservation, Date.now())
-                                            resolve('ENTROU. OK')
+                                            resolve('ENTROU. OK, distancia = ' + dist)
                                         } else {
-                                            resolve('MUITO DISTANTE. ERR')
+                                            resolve('MUITO DISTANTE. ERR , distancia = ' + dist)
                                         }
                                     })
                                 })
